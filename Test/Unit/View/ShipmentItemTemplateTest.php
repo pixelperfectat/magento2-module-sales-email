@@ -52,9 +52,10 @@ class ShipmentItemTemplateTest extends TestCase
     /**
      * @param DataObject[] $children
      */
-    private function orderItem(array $children = []): OrderItem
+    private function orderItem(array $children = [], float $qtyOrdered = 3.0): OrderItem
     {
         $orderItem = $this->createMock(OrderItem::class);
+        $orderItem->method('getQtyOrdered')->willReturn($qtyOrdered);
         $orderItem->method('getChildrenItems')->willReturn($children);
 
         return $orderItem;

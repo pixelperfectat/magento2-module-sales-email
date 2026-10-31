@@ -5,6 +5,7 @@
     "license": "MIT",
     "prefer-stable": true,
     "require": {
+        "ext-intl": "*",
         "magento/framework": "^103.0",
         "magento/module-cms": "^104.0",
         "magento/module-config": "^101.0",
