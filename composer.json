@@ -24,6 +24,7 @@
         "pixelperfectat/magento2-module-discount-lines": "Itemised discount rows in the totals of the emails"
     },
     "require-dev": {
+        "infection/infection": "^0.35",
         "phpunit/phpunit": "^9.6",
         "pixelperfectat/coding-standard": "^0.1.0"
     },
@@ -49,6 +50,7 @@
         "cs:fix": "phpcbf",
         "stan": "phpstan analyse",
         "test": "phpunit",
+        "infection": "infection --with-uncovered --min-msi=85 --min-covered-msi=90 --threads=max",
         "ci:validate": "@composer validate --no-check-publish",
         "check": [
             "@ci:validate",
@@ -64,6 +66,7 @@
             "cweagans/composer-patches": true,
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "ergebnis/composer-normalize": true,
+            "infection/extension-installer": true,
             "laminas/laminas-dependency-plugin": true,
             "magento/*": true,
             "php-http/discovery": true,
