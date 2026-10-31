@@ -1,20 +1,137 @@
 <!--
 /**
- * Placeholder, replaced by the modern layout in a later change.
+ * Modern order confirmation. Self-contained document: own header (logo and order number) and footer,
+ * styled by PixelPerfect_SalesEmail::css/pp-sales-email.css through the email inliner.
  */
 -->
 <!--@subject {{trans "Your %store_name order confirmation" store_name=$store.frontend_name}} @-->
 <!--@vars {
+"var formattedBillingAddress|raw":"Billing Address",
+"var order_data.email_customer_note|escape|nl2br":"Email Order Note",
 "var order.increment_id":"Order Id",
-"var order_data.customer_name":"Customer Name",
+"layout handle=\"pp_sales_email_order_items\" order_id=$order_id area=\"frontend\"":"Order Items Grid",
+"var payment_html|raw":"Payment Details",
+"var formattedShippingAddress|raw":"Shipping Address",
+"var order.shipping_description":"Shipping Description",
+"var created_at_formatted":"Order Created At (datetime)",
 "var store.frontend_name":"Store Frontend Name",
+"var store_phone":"Store Phone",
+"var store_email":"Store Email",
+"var store_hours":"Store Hours",
+"var this.getUrl($store,'customer/account/',[_nosid:1])":"Customer Account URL",
+"var order_data.is_not_virtual":"Order Type",
+"var logo_url":"Email Logo Image URL",
+"var logo_alt":"Email Logo Alt Text",
 "var order":"Order",
-"var order_id":"Order DB Id"
+"var order_id":"Order DB Id",
+"var order_data.customer_name":"Customer Name"
 } @-->
-
-{{template config_path="design/email/header_template"}}
-
-<p>{{trans "Thank you for your order from %store_name." store_name=$store.frontend_name}}</p>
-{{layout handle="sales_email_order_items" order_id=$order_id area="frontend"}}
-
-{{template config_path="design/email/footer_template"}}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+</head>
+<body>
+{{inlinecss file="PixelPerfect_SalesEmail::css/pp-sales-email.css"}}
+<table role="presentation" class="pp-outer" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ececea">
+    <tr>
+        <td class="pp-outer-cell" align="center">
+            <table role="presentation" class="pp-card" width="600" align="center" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff">
+                <tr>
+                    <td class="pp-header">
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                                <td align="left" valign="middle">
+                                    <a href="{{store url=""}}"><img
+                                        {{if logo_width}}width="{{var logo_width}}"{{else}}width="150"{{/if}}
+                                        {{if logo_height}}height="{{var logo_height}}"{{/if}}
+                                        src="{{var logo_url}}" alt="{{var logo_alt}}" border="0" /></a>
+                                </td>
+                                <td class="pp-header-order" align="right" valign="middle">
+                                    {{trans 'Order <span class="no-link">#%increment_id</span>' increment_id=$order.increment_id |raw}}
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="pp-headline">
+                        <h1 class="pp-title">{{trans "Thank you for your order."}}</h1>
+                        <p class="pp-intro">
+                            {{trans "We are preparing your package. As soon as it ships you will receive an email with a link to track it."}}
+                            {{trans 'You can check the status of your order by <a href="%account_url">logging into your account</a>.' account_url=$this.getUrl($store,'customer/account/',[_nosid:1]) |raw}}
+                        </p>
+                    </td>
+                </tr>
+                {{depend order_data.email_customer_note}}
+                <tr>
+                    <td class="pp-note">{{var order_data.email_customer_note|escape|nl2br}}</td>
+                </tr>
+                {{/depend}}
+                <tr>
+                    <td class="pp-strip-wrap">
+                        <table role="presentation" class="pp-strip" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f6f6f4">
+                            <tr>
+                                {{depend order_data.is_not_virtual}}
+                                <td class="pp-strip-cell" align="left" valign="top">
+                                    <span class="pp-small">{{trans "Shipping method"}}</span>
+                                    {{var order.shipping_description}}
+                                </td>
+                                {{/depend}}
+                                <td class="pp-strip-cell pp-strip-right" align="right" valign="top">
+                                    <span class="pp-small">{{trans "Placed on"}}</span>
+                                    <span class="no-link">{{var created_at_formatted}}</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td>{{layout handle="pp_sales_email_order_items" order_id=$order_id area="frontend"}}</td>
+                </tr>
+                <tr>
+                    <td class="pp-details">
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                                <td class="pp-details-title" colspan="2">{{trans "Order details"}}</td>
+                            </tr>
+                            <tr>
+                                <td class="pp-details-cell" valign="top">
+                                    <span class="pp-details-label">{{trans "Billing address"}}</span>
+                                    {{var formattedBillingAddress|raw}}
+                                </td>
+                                {{depend order_data.is_not_virtual}}
+                                <td class="pp-details-cell" valign="top">
+                                    <span class="pp-details-label">{{trans "Shipping address"}}</span>
+                                    {{var formattedShippingAddress|raw}}
+                                </td>
+                                {{/depend}}
+                            </tr>
+                            <tr>
+                                <td class="pp-details-cell" valign="top" colspan="2">
+                                    <span class="pp-details-label">{{trans "Payment method"}}</span>
+                                    {{var payment_html|raw}}
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="pp-footer" align="center">
+                        <p class="pp-footer-thanks">{{trans "Thank you for choosing %store_name." store_name=$store.frontend_name}}</p>
+                        <p class="pp-footer-contact">
+                            {{trans 'Questions about your order? Email us at <a href="mailto:%store_email">%store_email</a>' store_email=$store_email |raw}}{{depend store_phone}} {{trans 'or call us at <a href="tel:%store_phone">%store_phone</a>' store_phone=$store_phone |raw}}{{/depend}}.
+                            {{depend store_hours}}
+                            {{trans 'Our hours are <span class="no-link">%store_hours</span>.' store_hours=$store_hours |raw}}
+                            {{/depend}}
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>
