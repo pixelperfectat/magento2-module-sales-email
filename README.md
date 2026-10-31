@@ -82,7 +82,9 @@ the module's templates, then select your copy in the Sales Emails configuration.
 All colours live in one stylesheet that is inlined into the emails: `PixelPerfect_SalesEmail::css/pp-sales-email.css`.
 Defaults: ink `#2b2b2b`, muted `#6b6b6b`, line `#e3e3e3`, tint `#f6f6f4`, accent `#3a5a40`. Ship the same file in your
 theme (`<theme>/PixelPerfect_SalesEmail/web/css/pp-sales-email.css`) or in a small shop module to change them. The
-default invitation block carries its own inline colours; edit the CMS block to match.
+templates repeat a few colours as `bgcolor` attributes (button cell, tracking box, item placeholder, page background
+`#ececea`) for clients that ignore CSS; override those in your template copies. The default invitation block carries
+its own inline colours and a `bgcolor` button cell; edit the CMS block to match.
 
 ## Invitation block
 
@@ -93,7 +95,7 @@ before it is rendered.
   are unwrapped (their children stay).
 - **Removed together with their content:** `script style link svg form input button iframe object embed meta base
   textarea select noscript template math`.
-- **Allowed attributes:** `href src alt width height style align valign border cellpadding cellspacing role title`.
+- **Allowed attributes:** `href src alt width height style align valign border cellpadding cellspacing role title bgcolor`.
   Every other attribute (for example `onclick`, `class`, `id`) is dropped.
 - **URL schemes** in `href` and `src`: `http`, `https`, `mailto`, `tel`, and relative URLs. Others such as
   `javascript:` or `data:` are dropped.
@@ -127,7 +129,8 @@ shipped by this module.
 
 The module ships `en_US` and `de_DE` (formal "Sie") for its own strings only. Strings that Magento core already
 owns (Subtotal, Grand Total, Shipping & Handling, Coupon, the order subject and so on) are not duplicated; they come
-from the language pack installed for the store.
+from the language pack installed for the store. The "Gift" label in the amount cell comes from the discount-lines
+module.
 
 ## Known limits
 
@@ -138,7 +141,9 @@ from the language pack installed for the store.
   strip it show the desktop layout.
 - Real product images have not been tested in the lab (placeholder cells only); image URLs are resolved through the
   store emulation of the order's store.
-- Without discount lines, the core discount row keeps the rule description in its label (core behaviour).
+- Without discount lines, the core discount row shows the discount label core builds (the rule label or the coupon code).
+- Blocks saved by an import or a direct resource-model save skip the admin warning; their content is still sanitised
+  at render.
 - Tracking links point to the core tracking popup, not to the carrier's own page.
 
 ## Screenshots
