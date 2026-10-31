@@ -5,6 +5,7 @@
         <sequence>
             <module name="Magento_Sales"/>
             <module name="Magento_Cms"/>
+            <module name="Magento_Config"/>
             <module name="Magento_Email"/>
         </sequence>
     </module>

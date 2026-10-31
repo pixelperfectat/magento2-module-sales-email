@@ -6,7 +6,7 @@ bottom. Table-based, email-client safe markup, English and German copy.
 
 ## Configuration
 
-Stores > Configuration > Sales > Modern Layout (store view scope):
+Stores > Configuration > Sales > Modern Sales Emails (store view scope):
 
 | Setting | Default | Meaning |
 |---|---|---|

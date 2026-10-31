@@ -4,7 +4,7 @@
     <system>
         <section id="pp_sales_email" translate="label" type="text" sortOrder="303"
                  showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Modern Layout</label>
+            <label>Modern Sales Emails</label>
             <tab>sales</tab>
             <resource>PixelPerfect_SalesEmail::config</resource>
             <group id="general" translate="label" type="text" sortOrder="10"

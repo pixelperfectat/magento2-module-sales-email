@@ -16,7 +16,7 @@ class CmsBlock implements OptionSourceInterface
     }
 
     /**
-     * Empty option (off) followed by all CMS blocks, valued by identifier
+     * Empty option (off) followed by the active CMS blocks (one per identifier), valued by identifier
      *
      * @return array<int, array{value: string, label: string|\Magento\Framework\Phrase}>
      */
@@ -24,10 +24,17 @@ class CmsBlock implements OptionSourceInterface
     {
         $options = [['value' => '', 'label' => __('-- None --')]];
         $collection = $this->collectionFactory->create();
+        $collection->addFieldToFilter('is_active', 1);
         $collection->setOrder('title', 'ASC');
+        $seen = [];
         foreach ($collection as $block) {
+            $identifier = (string)$block->getData('identifier');
+            if (isset($seen[$identifier])) {
+                continue;
+            }
+            $seen[$identifier] = true;
             $options[] = [
-                'value' => (string)$block->getData('identifier'),
+                'value' => $identifier,
                 'label' => sprintf('%s (%s)', (string)$block->getData('title'), (string)$block->getData('identifier')),
             ];
         }
