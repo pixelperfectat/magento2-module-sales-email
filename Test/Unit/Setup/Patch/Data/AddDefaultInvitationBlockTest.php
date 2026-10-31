@@ -53,6 +53,13 @@ class AddDefaultInvitationBlockTest extends TestCase
         $this->assertSame(3, substr_count($content, '>+<'));
     }
 
+    public function testButtonKeepsItsBgcolorCell(): void
+    {
+        $html = $this->sanitizer->sanitize(AddDefaultInvitationBlock::CONTENT)->getHtml();
+
+        $this->assertStringContainsString('<td bgcolor="#3a5a40"', $html);
+    }
+
     public function testIdentifierIsFixed(): void
     {
         $this->assertSame('pp_sales_email_invitation', AddDefaultInvitationBlock::IDENTIFIER);

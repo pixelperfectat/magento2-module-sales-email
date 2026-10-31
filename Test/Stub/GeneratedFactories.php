@@ -56,3 +56,19 @@ namespace PixelPerfect\SalesEmail\Api\Data {
         }
     }
 }
+
+namespace Magento\Framework {
+    if (!class_exists(NumberFormatterFactory::class)) {
+        class NumberFormatterFactory
+        {
+            /**
+             * @param array{locale?: string, style?: int, pattern?: string|null} $data
+             * @return NumberFormatter
+             */
+            public function create(array $data = []): NumberFormatter
+            {
+                return new NumberFormatter($data['locale'] ?? null, $data['style'] ?? \NumberFormatter::DECIMAL);
+            }
+        }
+    }
+}

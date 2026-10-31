@@ -81,6 +81,15 @@ class TrackingTemplateTest extends TestCase
         $this->assertStringNotContainsString('Shipped with', $html);
     }
 
+    public function testButtonRowSpansOnlyTheCellsThatExist(): void
+    {
+        $without = $this->render([new Tracking('EX1', '', 'https://shop.example.com/t')]);
+        $with = $this->render([new Tracking('EX1', 'Example Parcel', 'https://shop.example.com/t')]);
+
+        $this->assertStringContainsString('pp-track-action" colspan="1"', $without);
+        $this->assertStringContainsString('pp-track-action" colspan="2"', $with);
+    }
+
     public function testTwoTracksGiveTwoBoxes(): void
     {
         $html = $this->render([

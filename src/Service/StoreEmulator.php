@@ -26,6 +26,10 @@ class StoreEmulator implements StoreEmulatorInterface
 
     /**
      * @inheritDoc
+     *
+     * Emulation is forced because the store can already match while the design area differs (admin send). An outer
+     * emulation of a different store is not restored by a nested stop (core keeps one saved state), so callers must
+     * not rely on the outer store being active after this call when they were already inside another emulation.
      */
     public function emulate(int $storeId, callable $callback): mixed
     {
@@ -35,7 +39,7 @@ class StoreEmulator implements StoreEmulatorInterface
             return $callback();
         }
 
-        $this->emulation->startEnvironmentEmulation($storeId, Area::AREA_FRONTEND);
+        $this->emulation->startEnvironmentEmulation($storeId, Area::AREA_FRONTEND, true);
         try {
             return $callback();
         } finally {

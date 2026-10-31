@@ -33,7 +33,7 @@ class EmailHtmlSanitizer implements EmailHtmlSanitizerInterface
         ],
         private readonly array $allowedAttributes = [
             'href', 'src', 'alt', 'width', 'height', 'style', 'align', 'valign', 'border', 'cellpadding',
-            'cellspacing', 'role', 'title',
+            'cellspacing', 'role', 'title', 'bgcolor',
         ],
         private readonly array $droppedTags = [
             'script', 'style', 'link', 'svg', 'form', 'input', 'button', 'iframe', 'object', 'embed', 'meta',

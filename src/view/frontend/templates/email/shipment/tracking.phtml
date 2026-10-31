@@ -36,7 +36,7 @@ $tracks = $viewModel->getTracks((int)$block->getData('shipment_id'));
                     </tr>
                     <?php if ($trackUrl !== null): ?>
                         <tr>
-                            <td class="pp-track-action" colspan="2" align="left">
+                            <td class="pp-track-action" colspan="<?= $track->getCarrierTitle() !== '' ? 2 : 1 ?>" align="left">
                                 <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                                     <tr>
                                         <td class="pp-button-cell" bgcolor="#3a5a40">

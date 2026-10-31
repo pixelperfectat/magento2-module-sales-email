@@ -35,7 +35,8 @@ class EmailItemTest extends TestCase
             $this->productRepository,
             $this->imageHelper,
             $this->createMock(LoggerInterface::class),
-            $this->scopeConfig
+            $this->scopeConfig,
+            new \Magento\Framework\NumberFormatterFactory()
         );
     }
 
@@ -108,7 +109,8 @@ class EmailItemTest extends TestCase
             $this->productRepository,
             $this->imageHelper,
             $this->createMock(LoggerInterface::class),
-            $this->scopeConfig
+            $this->scopeConfig,
+            new \Magento\Framework\NumberFormatterFactory()
         );
 
         $this->assertSame('https://shop.example.com/i.jpg', $viewModel->getImageUrl($this->item(5), 3));

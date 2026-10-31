@@ -9,6 +9,8 @@ use Magento\Catalog\Helper\Image as ImageHelper;
 use Magento\Catalog\Model\Product;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\NumberFormatter;
+use Magento\Framework\NumberFormatterFactory;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Magento\Sales\Model\Order\Item as OrderItem;
 use Magento\Store\Model\ScopeInterface;
@@ -23,6 +25,7 @@ class EmailItem implements ArgumentInterface
      * @param ImageHelper $imageHelper
      * @param LoggerInterface $logger
      * @param ScopeConfigInterface $scopeConfig
+     * @param NumberFormatterFactory $numberFormatterFactory
      * @param string $imageId view.xml image id used for the thumbnail
      * @param int $imageSize edge length in pixels of the resized thumbnail
      * @param int $maxQtyDecimals most fraction digits shown for a quantity
@@ -33,6 +36,7 @@ class EmailItem implements ArgumentInterface
         private readonly ImageHelper $imageHelper,
         private readonly LoggerInterface $logger,
         private readonly ScopeConfigInterface $scopeConfig,
+        private readonly NumberFormatterFactory $numberFormatterFactory,
         private readonly string $imageId = 'product_thumbnail_image',
         private readonly int $imageSize = 128,
         private readonly int $maxQtyDecimals = 4
@@ -68,7 +72,11 @@ class EmailItem implements ArgumentInterface
     public function formatQty(float $qty, int $storeId): string
     {
         $locale = (string)$this->scopeConfig->getValue('general/locale/code', ScopeInterface::SCOPE_STORE, $storeId);
-        $formatter = new \NumberFormatter($locale !== '' ? $locale : 'en_US', \NumberFormatter::DECIMAL);
+        /** @var NumberFormatter $formatter */
+        $formatter = $this->numberFormatterFactory->create([
+            'locale' => $locale !== '' ? $locale : 'en_US',
+            'style' => \NumberFormatter::DECIMAL,
+        ]);
         $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, $this->maxQtyDecimals);
         $formatter->setAttribute(\NumberFormatter::GROUPING_USED, 0);
 

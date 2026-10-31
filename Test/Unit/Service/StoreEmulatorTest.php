@@ -48,7 +48,7 @@ class StoreEmulatorTest extends TestCase
     public function testEmulatesAndStopsWhenStoreDiffers(): void
     {
         $this->currentStore(0, 'frontend');
-        $this->emulation->expects($this->once())->method('startEnvironmentEmulation')->with(3, 'frontend');
+        $this->emulation->expects($this->once())->method('startEnvironmentEmulation')->with(3, 'frontend', true);
         $this->emulation->expects($this->once())->method('stopEnvironmentEmulation');
 
         $this->assertSame('x', $this->emulator->emulate(3, static fn (): string => 'x'));
@@ -57,7 +57,7 @@ class StoreEmulatorTest extends TestCase
     public function testEmulatesWhenAreaIsNotFrontend(): void
     {
         $this->currentStore(3, 'adminhtml');
-        $this->emulation->expects($this->once())->method('startEnvironmentEmulation');
+        $this->emulation->expects($this->once())->method('startEnvironmentEmulation')->with(3, 'frontend', true);
         $this->emulation->expects($this->once())->method('stopEnvironmentEmulation');
 
         $this->emulator->emulate(3, static fn (): string => 'x');
