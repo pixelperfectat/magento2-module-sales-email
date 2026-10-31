@@ -34,6 +34,8 @@ class TrackingTemplateTest extends TestCase
                 return $key === 'view_model' ? $this->viewModel : 7;
             }
         };
+        // The real Escaper resolves its collaborators through the ObjectManager; inject plain ones by reflection
+        // so the template runs unchanged without a Magento bootstrap.
         $escaper = new Escaper(null, $this->createMock(LoggerInterface::class));
         $inline = $this->createMock(InlineInterface::class);
         $inline->method('isAllowed')->willReturn(false);

@@ -17,6 +17,7 @@ $viewModel = $block->getData('view_model');
 $tracks = $viewModel->getTracks((int)$block->getData('shipment_id'));
 ?>
 <?php foreach ($tracks as $track): ?>
+    <?php $trackUrl = $track->getUrl(); ?>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
             <td class="pp-track-wrap">
@@ -33,14 +34,14 @@ $tracks = $viewModel->getTracks((int)$block->getData('shipment_id'));
                             </td>
                         <?php endif; ?>
                     </tr>
-                    <?php if ($track->getUrl() !== null): ?>
+                    <?php if ($trackUrl !== null): ?>
                         <tr>
                             <td class="pp-track-action" colspan="2" align="left">
                                 <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                                     <tr>
                                         <td class="pp-button-cell" bgcolor="#3a5a40">
-                                            <a class="pp-button" href="<?= $escaper->escapeUrl($track->getUrl()) ?>"
-                                               target="_blank"><?= $escaper->escapeHtml(__('Track shipment')) ?></a>
+                                            <a class="pp-button" href="<?= $escaper->escapeUrl($trackUrl) ?>"
+                                               target="_blank" rel="noopener"><?= $escaper->escapeHtml(__('Track shipment')) ?></a>
                                         </td>
                                     </tr>
                                 </table>

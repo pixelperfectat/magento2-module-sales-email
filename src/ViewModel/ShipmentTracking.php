@@ -74,7 +74,7 @@ class ShipmentTracking implements ArgumentInterface
     {
         try {
             $url = trim((string)$this->shippingHelper->getTrackingPopupUrlBySalesModel($track));
-        } catch (\Throwable $e) {
+        } catch (\Exception $e) {
             $this->logger->warning('Tracking URL could not be built: ' . $e->getMessage());
 
             return null;

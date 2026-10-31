@@ -7,9 +7,11 @@ namespace PixelPerfect\SalesEmail\ViewModel;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Catalog\Helper\Image as ImageHelper;
 use Magento\Catalog\Model\Product;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Magento\Sales\Model\Order\Item as OrderItem;
+use Magento\Store\Model\ScopeInterface;
 use PixelPerfect\SalesEmail\Api\Service\StoreEmulatorInterface;
 use Psr\Log\LoggerInterface;
 
@@ -20,16 +22,20 @@ class EmailItem implements ArgumentInterface
      * @param ProductRepositoryInterface $productRepository
      * @param ImageHelper $imageHelper
      * @param LoggerInterface $logger
+     * @param ScopeConfigInterface $scopeConfig
      * @param string $imageId view.xml image id used for the thumbnail
      * @param int $imageSize edge length in pixels of the resized thumbnail
+     * @param int $maxQtyDecimals most fraction digits shown for a quantity
      */
     public function __construct(
         private readonly StoreEmulatorInterface $emulator,
         private readonly ProductRepositoryInterface $productRepository,
         private readonly ImageHelper $imageHelper,
         private readonly LoggerInterface $logger,
+        private readonly ScopeConfigInterface $scopeConfig,
         private readonly string $imageId = 'product_thumbnail_image',
-        private readonly int $imageSize = 128
+        private readonly int $imageSize = 128,
+        private readonly int $maxQtyDecimals = 4
     ) {
     }
 
@@ -50,6 +56,23 @@ class EmailItem implements ArgumentInterface
         }
 
         return $this->emulator->emulate($storeId, fn (): ?string => $this->buildUrl($productId, $storeId));
+    }
+
+    /**
+     * Quantity in the locale of the store, without trailing zeros (2 -> "2", 1.5 -> "1,5" in de_DE)
+     *
+     * @param float $qty
+     * @param int $storeId
+     * @return string
+     */
+    public function formatQty(float $qty, int $storeId): string
+    {
+        $locale = (string)$this->scopeConfig->getValue('general/locale/code', ScopeInterface::SCOPE_STORE, $storeId);
+        $formatter = new \NumberFormatter($locale !== '' ? $locale : 'en_US', \NumberFormatter::DECIMAL);
+        $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, $this->maxQtyDecimals);
+        $formatter->setAttribute(\NumberFormatter::GROUPING_USED, 0);
+
+        return (string)$formatter->format($qty);
     }
 
     /**

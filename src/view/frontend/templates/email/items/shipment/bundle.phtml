@@ -18,7 +18,8 @@ $parent = $block->getItem();
 $parentOrderItem = $parent->getOrderItem();
 /** @var EmailItem $viewModel */
 $viewModel = $block->getData('view_model');
-$imageUrl = $viewModel->getImageUrl($parentOrderItem, (int)$parent->getOrder()->getStoreId());
+$storeId = (int)$parent->getOrder()->getStoreId();
+$imageUrl = $viewModel->getImageUrl($parentOrderItem, $storeId);
 $shipItems = $block->getChildren($parent);
 $separately = $block->isShipmentSeparately();
 $options = $block->getItemOptions();
@@ -39,12 +40,15 @@ $options = $block->getItemOptions();
     </td>
     <td class="pp-item-qty pp-item-open" valign="middle" align="right">
         <?php if (!$separately): ?>
-            <?= $escaper->escapeHtml(__('Qty: %1', (float)$parent->getQty())) ?>
+            <?= $escaper->escapeHtml(__('Qty: %1', $viewModel->formatQty((float)$parent->getQty(), $storeId))) ?>
         <?php endif; ?>
     </td>
 </tr>
 <?php $previousOption = null; ?>
 <?php foreach ($parentOrderItem->getChildrenItems() as $child): ?>
+    <?php if ($separately && !isset($shipItems[$child->getId()])): ?>
+        <?php continue; ?>
+    <?php endif; ?>
     <?php $attributes = $block->getSelectionAttributes($child); ?>
     <?php if ($previousOption !== $attributes['option_id']): ?>
         <tr>
@@ -57,8 +61,8 @@ $options = $block->getItemOptions();
         <td></td>
         <td class="pp-item-child"><?= /* @noEscape */ $block->getValueHtml($child) ?></td>
         <td class="pp-item-child" align="right">
-            <?php if ($separately && isset($shipItems[$child->getId()])): ?>
-                <?= $escaper->escapeHtml(__('Qty: %1', (float)$shipItems[$child->getId()]->getQty())) ?>
+            <?php if ($separately): ?>
+                <?= $escaper->escapeHtml(__('Qty: %1', $viewModel->formatQty((float)$shipItems[$child->getId()]->getQty(), $storeId))) ?>
             <?php endif; ?>
         </td>
     </tr>

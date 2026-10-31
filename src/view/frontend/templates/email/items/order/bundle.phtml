@@ -39,7 +39,7 @@ $open = ' pp-item-open';
     </td>
     <td class="pp-item-info<?= $open ?>" valign="middle">
         <p class="pp-item-name"><?= $escaper->escapeHtml($item->getName()) ?></p>
-        <p class="pp-item-meta"><?= $escaper->escapeHtml(__('Qty: %1', (float)$item->getQtyOrdered())) ?></p>
+        <p class="pp-item-meta"><?= $escaper->escapeHtml(__('Qty: %1', $viewModel->formatQty((float)$item->getQtyOrdered(), (int)$order->getStoreId()))) ?></p>
     </td>
     <td class="pp-item-price<?= $open ?>" valign="middle" align="right">
         <?= /* @noEscape */ $block->getItemPrice($item) ?>

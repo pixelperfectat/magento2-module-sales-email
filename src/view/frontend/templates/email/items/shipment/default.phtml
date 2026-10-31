@@ -17,7 +17,8 @@ use PixelPerfect\SalesEmail\ViewModel\EmailItem;
 $item = $block->getItem();
 /** @var EmailItem $viewModel */
 $viewModel = $block->getData('view_model');
-$imageUrl = $viewModel->getImageUrl($item->getOrderItem(), (int)$item->getOrder()->getStoreId());
+$storeId = (int)$item->getOrder()->getStoreId();
+$imageUrl = $viewModel->getImageUrl($item->getOrderItem(), $storeId);
 $options = $block->getItemOptions();
 ?>
 <tr>
@@ -43,6 +44,6 @@ $options = $block->getItemOptions();
         <?php endif; ?>
     </td>
     <td class="pp-item-qty" valign="middle" align="right">
-        <?= $escaper->escapeHtml(__('Qty: %1', (float)$item->getQty())) ?>
+        <?= $escaper->escapeHtml(__('Qty: %1', $viewModel->formatQty((float)$item->getQty(), $storeId))) ?>
     </td>
 </tr>
