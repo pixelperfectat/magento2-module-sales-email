@@ -89,7 +89,6 @@ img {
 }
 
 .pp-small {
-    display: block;
     font-size: 12px;
     font-weight: normal;
     line-height: 18px;
@@ -167,6 +166,49 @@ img {
 
 .pp-totals-wrap {
     padding: 8px 0 0;
+}
+
+.pp-item-extra {
+    padding: 4px 0 14px;
+    border-bottom: 1px solid #e3e3e3;
+    font-size: 13px;
+    line-height: 19px;
+    color: #6b6b6b;
+}
+
+.pp-item-child {
+    padding: 2px 0 2px 16px;
+    font-size: 13px;
+    line-height: 19px;
+    color: #6b6b6b;
+}
+
+.pp-item-option-label {
+    padding: 6px 0 0 16px;
+    font-size: 13px;
+    line-height: 19px;
+    font-weight: bold;
+    color: #6b6b6b;
+}
+
+.pp-gift {
+    margin: 8px 0 0;
+}
+
+.pp-gift-cell {
+    padding: 10px 14px;
+    background-color: #f6f6f4;
+    font-size: 13px;
+    line-height: 20px;
+    color: #2b2b2b;
+}
+
+.pp-gift-label {
+    color: #6b6b6b;
+}
+
+.pp-item-open {
+    border-bottom: 0;
 }
 
 .pp-total-label {
@@ -253,7 +295,6 @@ img {
 }
 
 .pp-details-label {
-    display: block;
     color: #6b6b6b;
 }
 

@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace PixelPerfect\SalesEmail\ViewModel;
 
-use Magento\Framework\App\Area;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\View\Asset\Repository;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
-use Magento\Store\Model\App\Emulation;
 use Magento\Store\Model\ScopeInterface;
+use PixelPerfect\SalesEmail\Api\Service\StoreEmulatorInterface;
 use Psr\Log\LoggerInterface;
 
 class EmailTotals implements ArgumentInterface
@@ -21,14 +20,14 @@ class EmailTotals implements ArgumentInterface
 
     /**
      * @param ScopeConfigInterface $scopeConfig
-     * @param Emulation $emulation
+     * @param StoreEmulatorInterface $emulator
      * @param Repository $assetRepository
      * @param LoggerInterface $logger
      * @param array<string, string> $icons discount line kind => icon file name in web/images
      */
     public function __construct(
         private readonly ScopeConfigInterface $scopeConfig,
-        private readonly Emulation $emulation,
+        private readonly StoreEmulatorInterface $emulator,
         private readonly Repository $assetRepository,
         private readonly LoggerInterface $logger,
         private readonly array $icons = [
@@ -56,15 +55,14 @@ class EmailTotals implements ArgumentInterface
             return null;
         }
 
-        $this->emulation->startEnvironmentEmulation($storeId, Area::AREA_FRONTEND, true);
-        try {
-            return $this->assetRepository->getUrl('PixelPerfect_SalesEmail::images/' . $this->icons[$kind]);
-        } catch (\Throwable $e) {
-            $this->logger->warning('Email discount icon could not be built: ' . $e->getMessage());
+        return $this->emulator->emulate($storeId, function () use ($kind): ?string {
+            try {
+                return $this->assetRepository->getUrl('PixelPerfect_SalesEmail::images/' . $this->icons[$kind]);
+            } catch (\Throwable $e) {
+                $this->logger->warning('Email discount icon could not be built: ' . $e->getMessage());
 
-            return null;
-        } finally {
-            $this->emulation->stopEnvironmentEmulation();
-        }
+                return null;
+            }
+        });
     }
 }

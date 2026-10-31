@@ -25,7 +25,8 @@ class TotalsTemplateTest extends TestCase
         $order = $this->createMock(Order::class);
         $order->method('getStoreId')->willReturn(1);
         $order->method('formatPrice')->willReturnCallback(
-            static fn ($price): string => ($price < 0 ? '-' : '') . '$' . number_format(abs((float)$price), 2)
+            static fn ($price): string => '<span class="price">' . ($price < 0 ? '-' : '') . '$'
+                . number_format(abs((float)$price), 2) . '</span>'
         );
         $viewModel = $this->createMock(EmailTotals::class);
         $viewModel->method('getIconUrl')->willReturn($iconUrl);
@@ -58,7 +59,8 @@ class TotalsTemplateTest extends TestCase
 
             public function formatValue(DataObject $total): string
             {
-                return ($total->getValue() < 0 ? '-' : '') . '$' . number_format(abs((float)$total->getValue()), 2);
+                return '<span class="price">' . ($total->getValue() < 0 ? '-' : '') . '$'
+                    . number_format(abs((float)$total->getValue()), 2) . '</span>';
             }
 
             public function getChildHtml(string $name, bool $useCache = true): string
@@ -96,6 +98,20 @@ class TotalsTemplateTest extends TestCase
         $this->assertStringContainsString('$47.90', $html);
         $this->assertStringContainsString('pp-total-grand-label', $html);
         $this->assertStringContainsString('$52.80', $html);
+    }
+
+    public function testPriceMarkupIsNotEscapedInCoreAndDiscountLineRows(): void
+    {
+        $html = $this->render([
+            'subtotal' => $this->row('subtotal', 'Subtotal', 10.0),
+            'pp_discount_line_0' => $this->row('pp_discount_line_0', 'x', -2.0, [
+                'discount_line' => ['kind' => 'coupon', 'code' => 'A', 'label' => 'A', 'amount' => 2.0],
+            ]),
+        ]);
+
+        $this->assertStringContainsString('<span class="price">$10.00</span>', $html);
+        $this->assertStringContainsString('<span class="price">-$2.00</span>', $html);
+        $this->assertStringNotContainsString('&lt;span', $html);
     }
 
     public function testPlainDiscountRowKeepsCoreLabel(): void
@@ -147,7 +163,7 @@ class TotalsTemplateTest extends TestCase
             'discount_line' => ['kind' => 'gift', 'code' => 'TEA', 'label' => 'TEA', 'amount' => 3.5],
         ])]);
 
-        $this->assertMatchesRegularExpression('~<td class="pp-total-value" align="right">-\$3\.50</td>~', $html);
+        $this->assertMatchesRegularExpression('~<td class="pp-total-value" align="right"><span class="price">-\$3\.50</span></td>~', $html);
     }
 
     public function testGiftCardRowWithDiscountLineKeyRendersAsDiscountLine(): void

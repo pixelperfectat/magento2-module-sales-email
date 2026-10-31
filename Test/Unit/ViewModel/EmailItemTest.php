@@ -9,7 +9,7 @@ use Magento\Catalog\Helper\Image as ImageHelper;
 use Magento\Catalog\Model\Product;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Model\Order\Item as OrderItem;
-use Magento\Store\Model\App\Emulation;
+use PixelPerfect\SalesEmail\Api\Service\StoreEmulatorInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use PixelPerfect\SalesEmail\ViewModel\EmailItem;
@@ -17,18 +17,19 @@ use Psr\Log\LoggerInterface;
 
 class EmailItemTest extends TestCase
 {
-    private Emulation&MockObject $emulation;
+    private StoreEmulatorInterface&MockObject $emulator;
     private ProductRepositoryInterface&MockObject $productRepository;
     private ImageHelper&MockObject $imageHelper;
     private EmailItem $viewModel;
 
     protected function setUp(): void
     {
-        $this->emulation = $this->createMock(Emulation::class);
+        $this->emulator = $this->createMock(StoreEmulatorInterface::class);
+        $this->emulator->method('emulate')->willReturnCallback(static fn (int $storeId, callable $cb) => $cb());
         $this->productRepository = $this->createMock(ProductRepositoryInterface::class);
         $this->imageHelper = $this->createMock(ImageHelper::class);
         $this->viewModel = new EmailItem(
-            $this->emulation,
+            $this->emulator,
             $this->productRepository,
             $this->imageHelper,
             $this->createMock(LoggerInterface::class)
@@ -75,7 +76,7 @@ class EmailItemTest extends TestCase
 
     public function testItemWithoutProductIdReturnsNullWithoutEmulation(): void
     {
-        $this->emulation->expects($this->never())->method('startEnvironmentEmulation');
+        $this->emulator->expects($this->never())->method('emulate');
 
         $this->assertNull($this->viewModel->getImageUrl($this->item(0), 1));
     }
@@ -95,10 +96,22 @@ class EmailItemTest extends TestCase
         );
     }
 
-    public function testEmulationIsAlwaysStoppedEvenOnFailure(): void
+    public function testUrlIsBuiltForTheOrdersStore(): void
     {
-        $this->emulation->expects($this->once())->method('startEnvironmentEmulation')->with(3, 'frontend', true);
-        $this->emulation->expects($this->once())->method('stopEnvironmentEmulation');
+        $this->emulator = $this->createMock(StoreEmulatorInterface::class);
+        $this->emulator->expects($this->once())->method('emulate')->with(3)->willReturn('https://shop.example.com/i.jpg');
+        $viewModel = new EmailItem(
+            $this->emulator,
+            $this->productRepository,
+            $this->imageHelper,
+            $this->createMock(LoggerInterface::class)
+        );
+
+        $this->assertSame('https://shop.example.com/i.jpg', $viewModel->getImageUrl($this->item(5), 3));
+    }
+
+    public function testFailureReturnsNull(): void
+    {
         $this->productRepository->method('getById')->willThrowException(new \RuntimeException('boom'));
 
         $this->assertNull($this->viewModel->getImageUrl($this->item(5), 3));

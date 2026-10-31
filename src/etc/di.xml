@@ -6,6 +6,8 @@
                 type="PixelPerfect\SalesEmail\Service\EmailHtmlSanitizer"/>
     <preference for="PixelPerfect\SalesEmail\Api\Data\SanitizedHtmlInterface"
                 type="PixelPerfect\SalesEmail\Model\Data\SanitizedHtml"/>
+    <preference for="PixelPerfect\SalesEmail\Api\Service\StoreEmulatorInterface"
+                type="PixelPerfect\SalesEmail\Service\StoreEmulator"/>
     <type name="Magento\Sales\Model\Order\Email\Container\OrderIdentity">
         <plugin name="pp_sales_email_identity_template"
                 type="PixelPerfect\SalesEmail\Plugin\Sales\Email\IdentityTemplatePlugin"/>

@@ -13,7 +13,7 @@
 "var payment_html|raw":"Payment Details",
 "var formattedShippingAddress|raw":"Shipping Address",
 "var order.shipping_description":"Shipping Description",
-"var created_at_formatted":"Order Created At (datetime)",
+"layout handle=\"pp_sales_email_order_date\" order_id=$order_id area=\"frontend\"":"Order Created At (datetime)",
 "var store.frontend_name":"Store Frontend Name",
 "var store_phone":"Store Phone",
 "var store_email":"Store Email",
@@ -76,13 +76,13 @@
                             <tr>
                                 {{depend order_data.is_not_virtual}}
                                 <td class="pp-strip-cell" align="left" valign="top">
-                                    <span class="pp-small">{{trans "Shipping method"}}</span>
+                                    <span class="pp-small">{{trans "Shipping method"}}</span><br />
                                     {{var order.shipping_description}}
                                 </td>
                                 {{/depend}}
                                 <td class="pp-strip-cell pp-strip-right" align="right" valign="top">
-                                    <span class="pp-small">{{trans "Placed on"}}</span>
-                                    <span class="no-link">{{var created_at_formatted}}</span>
+                                    <span class="pp-small">{{trans "Placed on"}}</span><br />
+                                    <span class="no-link">{{layout handle="pp_sales_email_order_date" order_id=$order_id area="frontend"}}</span>
                                 </td>
                             </tr>
                         </table>
@@ -99,19 +99,19 @@
                             </tr>
                             <tr>
                                 <td class="pp-details-cell" valign="top">
-                                    <span class="pp-details-label">{{trans "Billing address"}}</span>
+                                    <span class="pp-details-label">{{trans "Billing address"}}</span><br />
                                     {{var formattedBillingAddress|raw}}
                                 </td>
                                 {{depend order_data.is_not_virtual}}
                                 <td class="pp-details-cell" valign="top">
-                                    <span class="pp-details-label">{{trans "Shipping address"}}</span>
+                                    <span class="pp-details-label">{{trans "Shipping address"}}</span><br />
                                     {{var formattedShippingAddress|raw}}
                                 </td>
                                 {{/depend}}
                             </tr>
                             <tr>
                                 <td class="pp-details-cell" valign="top" colspan="2">
-                                    <span class="pp-details-label">{{trans "Payment method"}}</span>
+                                    <span class="pp-details-label">{{trans "Payment method"}}</span><br />
                                     {{var payment_html|raw}}
                                 </td>
                             </tr>
@@ -122,7 +122,7 @@
                     <td class="pp-footer" align="center">
                         <p class="pp-footer-thanks">{{trans "Thank you for choosing %store_name." store_name=$store.frontend_name}}</p>
                         <p class="pp-footer-contact">
-                            {{trans 'Questions about your order? Email us at <a href="mailto:%store_email">%store_email</a>' store_email=$store_email |raw}}{{depend store_phone}} {{trans 'or call us at <a href="tel:%store_phone">%store_phone</a>' store_phone=$store_phone |raw}}{{/depend}}.
+                            {{depend store_email}}{{trans 'Questions about your order? Email us at <a href="mailto:%store_email">%store_email</a>' store_email=$store_email |raw}}{{/depend}}{{depend store_phone}} {{trans 'or call us at <a href="tel:%store_phone">%store_phone</a>' store_phone=$store_phone |raw}}{{/depend}}{{depend store_email}}.{{/depend}}
                             {{depend store_hours}}
                             {{trans 'Our hours are <span class="no-link">%store_hours</span>.' store_hours=$store_hours |raw}}
                             {{/depend}}

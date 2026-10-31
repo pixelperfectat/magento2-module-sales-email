@@ -1,6 +1,6 @@
 <?php
 /**
- * Compact order item row: image (64 px), name with quantity and options, price.
+ * Compact order item row: image (64 px), name with quantity and options, price, optional gift message.
  */
 
 declare(strict_types=1);
@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 use Magento\Framework\Escaper;
 use Magento\Sales\Block\Order\Email\Items\DefaultItems;
+use PixelPerfect\SalesEmail\ViewModel\EmailGiftMessage;
 use PixelPerfect\SalesEmail\ViewModel\EmailItem;
 
 /** @var DefaultItems $block */
@@ -18,11 +19,15 @@ $item = $block->getItem();
 $order = $item->getOrder();
 /** @var EmailItem $viewModel */
 $viewModel = $block->getData('view_model');
+/** @var EmailGiftMessage $giftViewModel */
+$giftViewModel = $block->getData('gift_view_model');
 $imageUrl = $viewModel->getImageUrl($item, (int)$order->getStoreId());
+$giftHtml = $giftViewModel->getItemHtml($item);
 $options = $block->getItemOptions();
+$open = $giftHtml !== '' ? ' pp-item-open' : '';
 ?>
 <tr>
-    <td class="pp-item-image" width="64" valign="middle">
+    <td class="pp-item-image<?= $open ?>" width="64" valign="middle">
         <?php if ($imageUrl !== null): ?>
             <img class="pp-item-img" src="<?= $escaper->escapeUrl($imageUrl) ?>" width="64" height="64"
                  alt="<?= $escaper->escapeHtmlAttr($item->getName()) ?>" border="0" />
@@ -32,19 +37,24 @@ $options = $block->getItemOptions();
             </table>
         <?php endif; ?>
     </td>
-    <td class="pp-item-info" valign="middle">
+    <td class="pp-item-info<?= $open ?>" valign="middle">
         <p class="pp-item-name"><?= $escaper->escapeHtml($item->getName()) ?></p>
         <p class="pp-item-meta"><?= $escaper->escapeHtml(__('Qty: %1', (float)$item->getQtyOrdered())) ?></p>
         <?php if ($options): ?>
             <p class="pp-item-options">
                 <?php foreach ($options as $option): ?>
                     <?= $escaper->escapeHtml($option['label']) ?>:
-                    <?= /* @noEscape */ nl2br((string)$option['value']) ?><br />
+                    <?= /* @noEscape */ $escaper->escapeHtml(nl2br((string)$option['value']), ['br', 'a']) ?><br />
                 <?php endforeach; ?>
             </p>
         <?php endif; ?>
     </td>
-    <td class="pp-item-price" valign="middle" align="right">
+    <td class="pp-item-price<?= $open ?>" valign="middle" align="right">
         <?= /* @noEscape */ $block->getItemPrice($item) ?>
     </td>
 </tr>
+<?php if ($giftHtml !== ''): ?>
+    <tr>
+        <td colspan="3" class="pp-item-extra"><?= /* @noEscape */ $giftHtml ?></td>
+    </tr>
+<?php endif; ?>

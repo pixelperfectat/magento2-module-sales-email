@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 use Magento\Framework\Escaper;
 use Magento\Sales\Block\Order\Email\Items;
+use PixelPerfect\SalesEmail\ViewModel\EmailGiftMessage;
 use PixelPerfect\SalesEmail\ViewModel\Invitation;
 
 /** @var Items $block */
@@ -21,6 +22,9 @@ $order = $block->getOrder();
     /** @var Invitation $invitation */
     $invitation = $block->getData('invitation_view_model');
     $invitationHtml = $invitation->getHtml('order', (int)$order->getStoreId());
+    /** @var EmailGiftMessage $giftViewModel */
+    $giftViewModel = $block->getData('gift_view_model');
+    $orderGiftHtml = $giftViewModel->getOrderHtml($order);
     ?>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
@@ -32,9 +36,18 @@ $order = $block->getOrder();
                         <?php endif; ?>
                     <?php endforeach; ?>
                 </table>
-                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="pp-totals-wrap">
-                    <?= /* @noEscape */ $block->getChildHtml('order_totals') ?>
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                        <td class="pp-totals-wrap">
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                                <?= /* @noEscape */ $block->getChildHtml('order_totals') ?>
+                            </table>
+                        </td>
+                    </tr>
                 </table>
+                <?php if ($orderGiftHtml !== ''): ?>
+                    <?= /* @noEscape */ $orderGiftHtml ?>
+                <?php endif; ?>
             </td>
         </tr>
         <?php if ($invitationHtml !== ''): ?>

@@ -9,6 +9,7 @@
                template="PixelPerfect_SalesEmail::email/order/items.phtml" cacheable="false">
             <arguments>
                 <argument name="invitation_view_model" xsi:type="object">PixelPerfect\SalesEmail\ViewModel\Invitation</argument>
+                <argument name="gift_view_model" xsi:type="object">PixelPerfect\SalesEmail\ViewModel\EmailGiftMessage</argument>
             </arguments>
             <block class="Magento\Framework\View\Element\RendererList" name="sales.email.order.renderers" as="renderer.list"/>
             <block class="Magento\Sales\Block\Order\Totals" name="order_totals"
@@ -31,12 +32,35 @@
                         template="PixelPerfect_SalesEmail::email/items/order/default.phtml">
             <arguments>
                 <argument name="view_model" xsi:type="object">PixelPerfect\SalesEmail\ViewModel\EmailItem</argument>
+                <argument name="gift_view_model" xsi:type="object">PixelPerfect\SalesEmail\ViewModel\EmailGiftMessage</argument>
             </arguments>
         </referenceBlock>
         <referenceBlock name="sales.email.order.renderers.grouped"
                         template="PixelPerfect_SalesEmail::email/items/order/default.phtml">
             <arguments>
                 <argument name="view_model" xsi:type="object">PixelPerfect\SalesEmail\ViewModel\EmailItem</argument>
+                <argument name="gift_view_model" xsi:type="object">PixelPerfect\SalesEmail\ViewModel\EmailGiftMessage</argument>
+            </arguments>
+        </referenceBlock>
+        <referenceBlock name="giftcard-options"
+                        template="PixelPerfect_SalesEmail::email/items/order/default.phtml">
+            <arguments>
+                <argument name="view_model" xsi:type="object">PixelPerfect\SalesEmail\ViewModel\EmailItem</argument>
+                <argument name="gift_view_model" xsi:type="object">PixelPerfect\SalesEmail\ViewModel\EmailGiftMessage</argument>
+            </arguments>
+        </referenceBlock>
+        <referenceBlock name="sales.email.order.renderers.bundle"
+                        template="PixelPerfect_SalesEmail::email/items/order/bundle.phtml">
+            <arguments>
+                <argument name="view_model" xsi:type="object">PixelPerfect\SalesEmail\ViewModel\EmailItem</argument>
+                <argument name="gift_view_model" xsi:type="object">PixelPerfect\SalesEmail\ViewModel\EmailGiftMessage</argument>
+            </arguments>
+        </referenceBlock>
+        <referenceBlock name="sales.email.order.renderers.downloadable"
+                        template="PixelPerfect_SalesEmail::email/items/order/downloadable.phtml">
+            <arguments>
+                <argument name="view_model" xsi:type="object">PixelPerfect\SalesEmail\ViewModel\EmailItem</argument>
+                <argument name="gift_view_model" xsi:type="object">PixelPerfect\SalesEmail\ViewModel\EmailGiftMessage</argument>
             </arguments>
         </referenceBlock>
     </body>
