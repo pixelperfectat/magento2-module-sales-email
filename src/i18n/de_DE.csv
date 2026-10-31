@@ -1,4 +1,4 @@
-"Modern Layout","Moderne Darstellung"
+"Modern Sales Emails","Moderne Verkaufs-E-Mails"
 "General","Allgemein"
 "Use Modern Email Layout","Moderne E-Mail-Darstellung verwenden"
 "Send the order confirmation and shipment emails in the modern layout. When set to No, this store view uses the core templates.","Bestellbestätigung und Versandbenachrichtigung in der modernen Darstellung versenden. Bei Nein verwendet diese Store View die Standard-Vorlagen."
@@ -11,3 +11,4 @@
 "Order confirmation","Bestellbestätigung"
 "Shipment","Versand"
 "Modern Sales Emails","Moderne Verkaufs-E-Mails"
+"The CMS block ""%1"" is used as email invitation. These elements are not email-safe and will be removed from the emails: %2.","Der CMS-Block ""%1"" wird als Einladung in E-Mails verwendet. Diese Elemente sind nicht E-Mail-tauglich und werden aus den E-Mails entfernt: %2."
