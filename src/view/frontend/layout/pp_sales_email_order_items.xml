@@ -42,13 +42,6 @@
                 <argument name="gift_view_model" xsi:type="object">PixelPerfect\SalesEmail\ViewModel\EmailGiftMessage</argument>
             </arguments>
         </referenceBlock>
-        <referenceBlock name="giftcard-options"
-                        template="PixelPerfect_SalesEmail::email/items/order/default.phtml">
-            <arguments>
-                <argument name="view_model" xsi:type="object">PixelPerfect\SalesEmail\ViewModel\EmailItem</argument>
-                <argument name="gift_view_model" xsi:type="object">PixelPerfect\SalesEmail\ViewModel\EmailGiftMessage</argument>
-            </arguments>
-        </referenceBlock>
         <referenceBlock name="sales.email.order.renderers.bundle"
                         template="PixelPerfect_SalesEmail::email/items/order/bundle.phtml">
             <arguments>

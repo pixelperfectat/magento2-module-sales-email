@@ -120,7 +120,8 @@
                     <td class="pp-footer" align="center">
                         <p class="pp-footer-thanks">{{trans "Thank you for choosing %store_name." store_name=$store.frontend_name}}</p>
                         <p class="pp-footer-contact">
-                            {{depend store_email}}{{trans 'Questions about your order? Email us at <a href="mailto:%store_email">%store_email</a>' store_email=$store_email |raw}}{{/depend}}{{depend store_phone}} {{trans 'or call us at <a href="tel:%store_phone">%store_phone</a>' store_phone=$store_phone |raw}}{{/depend}}{{depend store_email}}.{{/depend}}
+                            {{depend store_email}}{{trans 'Questions about your order? Email us at <a href="mailto:%store_email">%store_email</a>' store_email=$store_email |raw}}.{{/depend}}
+                            {{depend store_phone}}{{trans 'Call us at <a href="tel:%store_phone">%store_phone</a>' store_phone=$store_phone |raw}}.{{/depend}}
                             {{depend store_hours}}
                             {{trans 'Our hours are <span class="no-link">%store_hours</span>.' store_hours=$store_hours |raw}}
                             {{/depend}}
