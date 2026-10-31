@@ -1,0 +1,20 @@
+<!--
+/**
+ * Placeholder, replaced by the modern layout in a later change.
+ */
+-->
+<!--@subject {{trans "Your %store_name order confirmation" store_name=$store.frontend_name}} @-->
+<!--@vars {
+"var order.increment_id":"Order Id",
+"var order_data.customer_name":"Customer Name",
+"var store.frontend_name":"Store Frontend Name",
+"var order":"Order",
+"var order_id":"Order DB Id"
+} @-->
+
+{{template config_path="design/email/header_template"}}
+
+<p>{{trans "Thank you for your order from %store_name." store_name=$store.frontend_name}}</p>
+{{layout handle="sales_email_order_items" order_id=$order_id area="frontend"}}
+
+{{template config_path="design/email/footer_template"}}

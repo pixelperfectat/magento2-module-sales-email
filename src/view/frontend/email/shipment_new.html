@@ -1,0 +1,23 @@
+<!--
+/**
+ * Placeholder, replaced by the modern layout in a later change.
+ */
+-->
+<!--@subject {{trans "Your %store_name order has shipped" store_name=$store.frontend_name}} @-->
+<!--@vars {
+"var order.increment_id":"Order Id",
+"var shipment.increment_id":"Shipment Id",
+"var order_data.customer_name":"Customer Name",
+"var store.frontend_name":"Store Frontend Name",
+"var shipment":"Shipment",
+"var order":"Order",
+"var order_id":"Order DB Id",
+"var shipment_id":"Shipment DB Id"
+} @-->
+
+{{template config_path="design/email/header_template"}}
+
+<p>{{trans "Your order %increment_id has shipped." increment_id=$order.increment_id}}</p>
+{{layout handle="sales_email_order_shipment_items" shipment_id=$shipment_id order_id=$order_id}}
+
+{{template config_path="design/email/footer_template"}}

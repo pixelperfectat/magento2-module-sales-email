@@ -11,5 +11,15 @@
                 <enabled_for>order,shipment</enabled_for>
             </invitation>
         </pp_sales_email>
+        <sales_email>
+            <order>
+                <template>pp_sales_email_order_template</template>
+                <guest_template>pp_sales_email_order_guest_template</guest_template>
+            </order>
+            <shipment>
+                <template>pp_sales_email_shipment_template</template>
+                <guest_template>pp_sales_email_shipment_guest_template</guest_template>
+            </shipment>
+        </sales_email>
     </default>
 </config>
