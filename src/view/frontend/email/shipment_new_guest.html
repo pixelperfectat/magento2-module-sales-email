@@ -1,23 +1,106 @@
 <!--
 /**
- * Placeholder, replaced by the modern layout in a later change.
+ * Modern shipment confirmation. Self-contained document: own header (logo and order number) and footer,
+ * styled by PixelPerfect_SalesEmail::css/pp-sales-email.css through the email inliner.
  */
 -->
-<!--@subject {{trans "Your %store_name order has shipped" store_name=$store.frontend_name}} @-->
+<!--@subject {{trans "Your %store_name package is on its way" store_name=$store.frontend_name}} @-->
 <!--@vars {
+"var comment|escape|nl2br":"Shipment Comment",
 "var order.increment_id":"Order Id",
 "var shipment.increment_id":"Shipment Id",
-"var order_data.customer_name":"Customer Name",
+"layout handle=\"pp_sales_email_shipment_tracking\" shipment_id=$shipment_id order_id=$order_id area=\"frontend\"":"Shipment Tracking Strip",
+"layout handle=\"pp_sales_email_shipment_items\" shipment_id=$shipment_id order_id=$order_id area=\"frontend\"":"Shipment Items Grid",
+"var formattedShippingAddress|raw":"Shipping Address",
 "var store.frontend_name":"Store Frontend Name",
-"var shipment":"Shipment",
+"var store_phone":"Store Phone",
+"var store_email":"Store Email",
+"var store_hours":"Store Hours",
+"var this.getUrl($store,'customer/account/',[_nosid:1])":"Customer Account URL",
+"var logo_url":"Email Logo Image URL",
+"var logo_alt":"Email Logo Alt Text",
 "var order":"Order",
+"var shipment":"Shipment",
 "var order_id":"Order DB Id",
-"var shipment_id":"Shipment DB Id"
+"var shipment_id":"Shipment DB Id",
+"var order_data.customer_name":"Customer Name"
 } @-->
-
-{{template config_path="design/email/header_template"}}
-
-<p>{{trans "Your order %increment_id has shipped." increment_id=$order.increment_id}}</p>
-{{layout handle="sales_email_order_shipment_items" shipment_id=$shipment_id order_id=$order_id}}
-
-{{template config_path="design/email/footer_template"}}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+</head>
+<body>
+{{inlinecss file="PixelPerfect_SalesEmail::css/pp-sales-email.css"}}
+<table role="presentation" class="pp-outer" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ececea">
+    <tr>
+        <td class="pp-outer-cell" align="center">
+            <table role="presentation" class="pp-card" width="600" align="center" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff">
+                <tr>
+                    <td class="pp-header">
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                                <td align="left" valign="middle">
+                                    <a href="{{store url=""}}"><img
+                                        {{if logo_width}}width="{{var logo_width}}"{{else}}width="150"{{/if}}
+                                        {{if logo_height}}height="{{var logo_height}}"{{/if}}
+                                        src="{{var logo_url}}" alt="{{var logo_alt}}" border="0" /></a>
+                                </td>
+                                <td class="pp-header-order" align="right" valign="middle">
+                                    {{trans 'Order <span class="no-link">#%increment_id</span>' increment_id=$order.increment_id |raw}}
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="pp-headline">
+                        <h1 class="pp-title">{{trans "Your package is on its way."}}</h1>
+                        <p class="pp-intro">
+                            {{trans "We have just shipped your order. Use the tracking number to see where your package is at any time."}}
+                        </p>
+                    </td>
+                </tr>
+                {{depend comment}}
+                <tr>
+                    <td class="pp-note">{{var comment|escape|nl2br}}</td>
+                </tr>
+                {{/depend}}
+                <tr>
+                    <td>{{layout handle="pp_sales_email_shipment_tracking" shipment_id=$shipment_id order_id=$order_id area="frontend"}}</td>
+                </tr>
+                <tr>
+                    <td>{{layout handle="pp_sales_email_shipment_items" shipment_id=$shipment_id order_id=$order_id area="frontend"}}</td>
+                </tr>
+                <tr>
+                    <td class="pp-details">
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                                <td class="pp-details-cell" valign="top">
+                                    <span class="pp-details-label">{{trans "Delivery address"}}</span><br />
+                                    {{var formattedShippingAddress|raw}}
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="pp-footer" align="center">
+                        <p class="pp-footer-thanks">{{trans "Thank you for choosing %store_name." store_name=$store.frontend_name}}</p>
+                        <p class="pp-footer-contact">
+                            {{depend store_email}}{{trans 'Questions about your order? Email us at <a href="mailto:%store_email">%store_email</a>' store_email=$store_email |raw}}.{{/depend}}
+                            {{depend store_phone}}{{trans 'Call us at <a href="tel:%store_phone">%store_phone</a>' store_phone=$store_phone |raw}}.{{/depend}}
+                            {{depend store_hours}}
+                            {{trans 'Our hours are <span class="no-link">%store_hours</span>.' store_hours=$store_hours |raw}}
+                            {{/depend}}
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<?php
+/**
+ * Modern shipment items section: "In this package" rows without prices and the invitation block.
+ */
+
+declare(strict_types=1);
+
+// phpcs:disable Magento2.Templates.ThisInTemplate
+
+use Magento\Framework\Escaper;
+use Magento\Sales\Block\Order\Email\Shipment\Items;
+use PixelPerfect\SalesEmail\ViewModel\Invitation;
+
+/** @var Items $block */
+/** @var Escaper $escaper */
+
+$shipment = $block->getShipment();
+$order = $block->getOrder();
+?>
+<?php if ($shipment && $order): ?>
+    <?php
+    /** @var Invitation $invitation */
+    $invitation = $block->getData('invitation_view_model');
+    $invitationHtml = $invitation->getHtml('shipment', (int)$order->getStoreId());
+    ?>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+            <td class="pp-items-wrap">
+                <p class="pp-section-title"><?= $escaper->escapeHtml(__('In this package')) ?></p>
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                    <?php foreach ($shipment->getAllItems() as $item): ?>
+                        <?php if (!$item->getOrderItem()->getParentItem()): ?>
+                            <?= /* @noEscape */ $block->getItemHtml($item) ?>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </table>
+            </td>
+        </tr>
+        <?php if ($invitationHtml !== ''): ?>
+            <tr>
+                <td class="pp-invitation-wrap">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                        <tr><td class="pp-invitation"><?= /* @noEscape */ $invitationHtml ?></td></tr>
+                    </table>
+                </td>
+            </tr>
+        <?php endif; ?>
+    </table>
+<?php endif; ?>

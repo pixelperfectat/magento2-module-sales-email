@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd"
+      label="Modern Email Shipment Items List" design_abstraction="custom">
+    <update handle="sales_email_order_shipment_renderers"/>
+    <body>
+        <block class="Magento\Sales\Block\Order\Email\Shipment\Items" name="items"
+               template="PixelPerfect_SalesEmail::email/shipment/items.phtml" cacheable="false">
+            <arguments>
+                <argument name="invitation_view_model" xsi:type="object">PixelPerfect\SalesEmail\ViewModel\Invitation</argument>
+            </arguments>
+            <block class="Magento\Framework\View\Element\RendererList" name="sales.email.order.shipment.renderers" as="renderer.list"/>
+        </block>
+        <block class="Magento\Framework\View\Element\Template" name="additional.product.info"
+               template="Magento_Theme::template.phtml"/>
+        <referenceBlock name="sales.email.order.shipment.renderers.default"
+                        template="PixelPerfect_SalesEmail::email/items/shipment/default.phtml">
+            <arguments>
+                <argument name="view_model" xsi:type="object">PixelPerfect\SalesEmail\ViewModel\EmailItem</argument>
+            </arguments>
+        </referenceBlock>
+        <referenceBlock name="sales.email.order.shipment.renderers.bundle"
+                        template="PixelPerfect_SalesEmail::email/items/shipment/bundle.phtml">
+            <arguments>
+                <argument name="view_model" xsi:type="object">PixelPerfect\SalesEmail\ViewModel\EmailItem</argument>
+            </arguments>
+        </referenceBlock>
+    </body>
+</page>

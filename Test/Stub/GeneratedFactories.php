@@ -36,3 +36,23 @@ namespace PixelPerfect\SalesEmail\Api\Data {
         }
     }
 }
+
+namespace PixelPerfect\SalesEmail\Api\Data {
+    if (!class_exists(TrackingInterfaceFactory::class)) {
+        class TrackingInterfaceFactory
+        {
+            /**
+             * @param array{number?: string, carrierTitle?: string, url?: string|null} $data
+             * @return TrackingInterface
+             */
+            public function create(array $data = []): TrackingInterface
+            {
+                return new \PixelPerfect\SalesEmail\Model\Data\Tracking(
+                    $data['number'] ?? '',
+                    $data['carrierTitle'] ?? '',
+                    $data['url'] ?? null
+                );
+            }
+        }
+    }
+}
