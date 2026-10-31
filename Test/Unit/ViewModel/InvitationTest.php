@@ -11,7 +11,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use PixelPerfect\SalesEmail\Api\ConfigInterface;
 use PixelPerfect\SalesEmail\Api\Service\EmailHtmlSanitizerInterface;
-use PixelPerfect\SalesEmail\Model\Data\SanitizedHtmlFactory;
+use PixelPerfect\SalesEmail\Api\Data\SanitizedHtmlInterfaceFactory;
 use PixelPerfect\SalesEmail\ViewModel\Invitation;
 use Psr\Log\LoggerInterface;
 
@@ -90,7 +90,7 @@ class InvitationTest extends TestCase
         $this->filterProvider->method('getBlockFilter')->willReturn($filter);
 
         $this->sanitizer->expects($this->once())->method('sanitize')->with('<p>https://example.com/</p>')
-            ->willReturn((new SanitizedHtmlFactory())->create(['html' => '<p>clean</p>', 'removed' => []]));
+            ->willReturn((new SanitizedHtmlInterfaceFactory())->create(['html' => '<p>clean</p>', 'removed' => []]));
 
         $this->assertSame('<p>clean</p>', $this->viewModel->getHtml('order', 3));
     }

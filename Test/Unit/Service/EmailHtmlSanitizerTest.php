@@ -3,7 +3,7 @@
 namespace PixelPerfect\SalesEmail\Test\Unit\Service;
 
 use PHPUnit\Framework\TestCase;
-use PixelPerfect\SalesEmail\Model\Data\SanitizedHtmlFactory;
+use PixelPerfect\SalesEmail\Api\Data\SanitizedHtmlInterfaceFactory;
 use PixelPerfect\SalesEmail\Service\EmailHtmlSanitizer;
 use Psr\Log\LoggerInterface;
 
@@ -14,7 +14,7 @@ class EmailHtmlSanitizerTest extends TestCase
     protected function setUp(): void
     {
         $this->sanitizer = new EmailHtmlSanitizer(
-            new SanitizedHtmlFactory(),
+            new SanitizedHtmlInterfaceFactory(),
             $this->createMock(LoggerInterface::class)
         );
     }
@@ -43,7 +43,7 @@ class EmailHtmlSanitizerTest extends TestCase
 
         $this->assertStringNotContainsString('onclick', $result->getHtml());
         $this->assertStringContainsString('style="color:#111"', $result->getHtml());
-        $this->assertSame(['@onclick'], $result->getRemoved());
+        $this->assertSame(['onclick attribute'], $result->getRemoved());
     }
 
     /**
@@ -54,7 +54,7 @@ class EmailHtmlSanitizerTest extends TestCase
         $result = $this->sanitizer->sanitize('<a href="' . $href . '">x</a>');
 
         $this->assertStringNotContainsString('href', $result->getHtml());
-        $this->assertSame(['@href'], $result->getRemoved());
+        $this->assertSame(['href (unsafe URL)'], $result->getRemoved());
     }
 
     /**
@@ -77,7 +77,7 @@ class EmailHtmlSanitizerTest extends TestCase
         $result = $this->sanitizer->sanitize('<img src="data:image/png;base64,AAAA" alt="x">');
 
         $this->assertStringNotContainsString('src', $result->getHtml());
-        $this->assertSame(['@src'], $result->getRemoved());
+        $this->assertSame(['src (unsafe URL)'], $result->getRemoved());
     }
 
     public function testKeepsTablesInlineStylesLinksAndImages(): void
@@ -119,7 +119,48 @@ class EmailHtmlSanitizerTest extends TestCase
         $result = $this->sanitizer->sanitize('<p style="width:expression(alert(1))">x</p>');
 
         $this->assertStringNotContainsString('style', $result->getHtml());
-        $this->assertSame(['@style'], $result->getRemoved());
+        $this->assertSame(['style (unsafe value)'], $result->getRemoved());
+    }
+
+    /**
+     * @dataProvider unsafeStyleProvider
+     */
+    public function testHardenedStyleChecks(string $style): void
+    {
+        $result = $this->sanitizer->sanitize('<p style="' . $style . '">x</p>');
+
+        $this->assertStringNotContainsString('style', $result->getHtml());
+        $this->assertSame(['style (unsafe value)'], $result->getRemoved());
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function unsafeStyleProvider(): array
+    {
+        return [
+            'css escape' => ['width:exp\\72 ession(alert(1))'],
+            'comment split' => ['width:expr/**/ession(alert(1))'],
+            'escaped url scheme' => ['background:url(java\\73 cript:alert(1))'],
+            'escaped behavior' => ['beh\\61 vior:url(x.htc)'],
+            'plain behavior' => ['behavior:url(x.htc)'],
+            'data url' => ['background:url(data:image/png;base64,AAAA)'],
+            'quoted data url' => ["background:url('data:text/html,x')"],
+        ];
+    }
+
+    public function testHttpsUrlInStyleIsKept(): void
+    {
+        $result = $this->sanitizer->sanitize('<p style="background:url(https://example.com/a.png)">x</p>');
+
+        $this->assertSame([], $result->getRemoved());
+    }
+
+    public function testStrayClosingTagDoesNotLoseFollowingContent(): void
+    {
+        $result = $this->sanitizer->sanitize('<p>a</p></div><p>lost</p>');
+
+        $this->assertSame('<p>a</p><p>lost</p>', $result->getHtml());
     }
 
     public function testCommentsAreDropped(): void
@@ -154,7 +195,7 @@ class EmailHtmlSanitizerTest extends TestCase
     public function testNeverThrowsAndLogsOnFailure(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
-        $factory = $this->createMock(SanitizedHtmlFactory::class);
+        $factory = $this->createMock(SanitizedHtmlInterfaceFactory::class);
         $factory->method('create')->willReturnCallback(
             static function (array $data) {
                 static $first = true;
@@ -162,7 +203,7 @@ class EmailHtmlSanitizerTest extends TestCase
                     $first = false;
                     throw new \RuntimeException('boom');
                 }
-                return (new SanitizedHtmlFactory())->create($data);
+                return (new SanitizedHtmlInterfaceFactory())->create($data);
             }
         );
         $logger->expects($this->once())->method('error');

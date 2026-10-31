@@ -10,5 +10,7 @@
 "-- None --","-- None --"
 "Order confirmation","Order confirmation"
 "Shipment","Shipment"
-"Modern Sales Emails","Modern Sales Emails"
 "The CMS block ""%1"" is used as email invitation. These elements are not email-safe and will be removed from the emails: %2.","The CMS block ""%1"" is used as email invitation. These elements are not email-safe and will be removed from the emails: %2."
+"%1 attribute","%1 attribute"
+"%1 (unsafe URL)","%1 (unsafe URL)"
+"%1 (unsafe value)","%1 (unsafe value)"

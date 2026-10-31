@@ -8,7 +8,7 @@ use DOMElement;
 use DOMNode;
 use PixelPerfect\SalesEmail\Api\Data\SanitizedHtmlInterface;
 use PixelPerfect\SalesEmail\Api\Service\EmailHtmlSanitizerInterface;
-use PixelPerfect\SalesEmail\Model\Data\SanitizedHtmlFactory;
+use PixelPerfect\SalesEmail\Api\Data\SanitizedHtmlInterfaceFactory;
 use Psr\Log\LoggerInterface;
 
 class EmailHtmlSanitizer implements EmailHtmlSanitizerInterface
@@ -16,7 +16,7 @@ class EmailHtmlSanitizer implements EmailHtmlSanitizerInterface
     private const ROOT_ID = 'pp-sales-email-root';
 
     /**
-     * @param SanitizedHtmlFactory $resultFactory
+     * @param SanitizedHtmlInterfaceFactory $resultFactory
      * @param LoggerInterface $logger
      * @param string[] $allowedTags tags kept; unknown tags are unwrapped (children kept)
      * @param string[] $allowedAttributes
@@ -25,7 +25,7 @@ class EmailHtmlSanitizer implements EmailHtmlSanitizerInterface
      * @param string[] $allowedSchemes
      */
     public function __construct(
-        private readonly SanitizedHtmlFactory $resultFactory,
+        private readonly SanitizedHtmlInterfaceFactory $resultFactory,
         private readonly LoggerInterface $logger,
         private readonly array $allowedTags = [
             'table', 'tbody', 'thead', 'tr', 'td', 'th', 'p', 'a', 'strong', 'b', 'em', 'i', 'br', 'span',
@@ -94,6 +94,13 @@ class EmailHtmlSanitizer implements EmailHtmlSanitizerInterface
             return $this->resultFactory->create();
         }
 
+        // A stray closing tag in the input can close the root early; keep everything that follows.
+        foreach (iterator_to_array($document->childNodes) as $sibling) {
+            if ($sibling !== $root && $sibling->nodeType !== XML_PI_NODE) {
+                $root->appendChild($sibling);
+            }
+        }
+
         $removed = [];
         $this->cleanChildren($root, $removed);
 
@@ -125,7 +132,7 @@ class EmailHtmlSanitizer implements EmailHtmlSanitizerInterface
 
             $name = strtolower($child->nodeName);
             if (in_array($name, $this->droppedTags, true)) {
-                $removed[$name] = true;
+                $removed[$this->label('%1', $name)] = true;
                 $parent->removeChild($child);
                 continue;
             }
@@ -133,7 +140,7 @@ class EmailHtmlSanitizer implements EmailHtmlSanitizerInterface
             $this->cleanChildren($child, $removed);
 
             if (!in_array($name, $this->allowedTags, true)) {
-                $removed[$name] = true;
+                $removed[$this->label('%1', $name)] = true;
                 while ($child->firstChild !== null) {
                     $parent->insertBefore($child->firstChild, $child);
                 }
@@ -157,7 +164,13 @@ class EmailHtmlSanitizer implements EmailHtmlSanitizerInterface
         foreach (iterator_to_array($element->attributes) as $attribute) {
             $name = strtolower($attribute->nodeName);
             if (!in_array($name, $this->allowedAttributes, true) || !$this->isSafeValue($name, $attribute->value)) {
-                $removed['@' . $name] = true;
+                $pattern = '%1 attribute';
+                if (in_array($name, $this->urlAttributes, true) && in_array($name, $this->allowedAttributes, true)) {
+                    $pattern = '%1 (unsafe URL)';
+                } elseif (in_array($name, $this->allowedAttributes, true)) {
+                    $pattern = '%1 (unsafe value)';
+                }
+                $removed[$this->label($pattern, $name)] = true;
                 $element->removeAttribute($attribute->nodeName);
             }
         }
@@ -183,9 +196,47 @@ class EmailHtmlSanitizer implements EmailHtmlSanitizerInterface
             return true;
         }
         if ($name === 'style') {
-            return preg_match('/expression\s*\(|javascript:|vbscript:|-moz-binding|behavior\s*:|@import/i', $value) !== 1;
+            return $this->isSafeStyle($value);
         }
 
         return true;
+    }
+
+    /**
+     * Reject escapes, comments and script-capable constructs; url() may only point to http(s)
+     *
+     * @param string $style
+     * @return bool
+     */
+    private function isSafeStyle(string $style): bool
+    {
+        if (str_contains($style, '\\') || str_contains($style, '/*')) {
+            return false;
+        }
+        if (preg_match('/expression|behavior|javascript|vbscript|-moz-binding|@import/i', $style) === 1) {
+            return false;
+        }
+        if (preg_match_all('/url\s*\(([^)]*)\)/i', $style, $matches) > 0) {
+            foreach ($matches[1] as $url) {
+                $url = trim($url, " \t\n\r\"'");
+                if (preg_match('/^https?:\/\//i', $url) !== 1 && preg_match('/^[a-z][a-z0-9+.\-]*:/i', $url) === 1) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Translated label for a removed item
+     *
+     * @param string $pattern
+     * @param string $name
+     * @return string
+     */
+    private function label(string $pattern, string $name): string
+    {
+        return (string)__($pattern, $name);
     }
 }

@@ -10,7 +10,7 @@ use Magento\Store\Model\StoreManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use PixelPerfect\SalesEmail\Api\ConfigInterface;
-use PixelPerfect\SalesEmail\Model\Data\SanitizedHtmlFactory;
+use PixelPerfect\SalesEmail\Api\Data\SanitizedHtmlInterfaceFactory;
 use PixelPerfect\SalesEmail\Plugin\Cms\BlockRepositoryPlugin;
 use PixelPerfect\SalesEmail\Service\EmailHtmlSanitizer;
 use Psr\Log\LoggerInterface;
@@ -30,7 +30,7 @@ class BlockRepositoryPluginTest extends TestCase
         $logger = $this->createMock(LoggerInterface::class);
         $this->plugin = new BlockRepositoryPlugin(
             $this->config,
-            new EmailHtmlSanitizer(new SanitizedHtmlFactory(), $logger),
+            new EmailHtmlSanitizer(new SanitizedHtmlInterfaceFactory(), $logger),
             $this->messages,
             $this->storeManager,
             $logger
@@ -45,7 +45,7 @@ class BlockRepositoryPluginTest extends TestCase
         $this->messages->expects($this->once())->method('addWarningMessage')
             ->with($this->logicalAnd(
                 $this->stringContains('script'),
-                $this->stringContains('onclick'),
+                $this->stringContains('onclick attribute'),
                 $this->stringContains('invite')
             ));
 

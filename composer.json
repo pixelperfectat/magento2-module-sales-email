@@ -29,6 +29,9 @@
         }
     },
     "autoload-dev": {
+        "files": [
+            "Test/Stub/GeneratedFactories.php"
+        ],
         "psr-4": {
             "PixelPerfect\\SalesEmail\\Test\\": "Test/"
         }

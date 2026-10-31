@@ -3,7 +3,7 @@
 namespace PixelPerfect\SalesEmail\Test\Unit\Setup\Patch\Data;
 
 use PHPUnit\Framework\TestCase;
-use PixelPerfect\SalesEmail\Model\Data\SanitizedHtmlFactory;
+use PixelPerfect\SalesEmail\Api\Data\SanitizedHtmlInterfaceFactory;
 use PixelPerfect\SalesEmail\Service\EmailHtmlSanitizer;
 use PixelPerfect\SalesEmail\Setup\Patch\Data\AddDefaultInvitationBlock;
 use Psr\Log\LoggerInterface;
@@ -14,7 +14,7 @@ class AddDefaultInvitationBlockTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->sanitizer = new EmailHtmlSanitizer(new SanitizedHtmlFactory(), $this->createMock(LoggerInterface::class));
+        $this->sanitizer = new EmailHtmlSanitizer(new SanitizedHtmlInterfaceFactory(), $this->createMock(LoggerInterface::class));
     }
 
     public function testDefaultContentPassesTheSanitizerUntouched(): void
@@ -23,6 +23,24 @@ class AddDefaultInvitationBlockTest extends TestCase
 
         $this->assertSame([], $result->getRemoved());
         $this->assertSame($result->getHtml(), $this->sanitizer->sanitize($result->getHtml())->getHtml());
+    }
+
+    public function testCmsFilteredContentPassesUnchanged(): void
+    {
+        $filtered = preg_replace(
+            "/\\{\\{store url=''\\}\\}/",
+            'https://example.com/',
+            AddDefaultInvitationBlock::CONTENT
+        );
+        $this->assertStringContainsString('href="https://example.com/#newsletter"', (string)$filtered);
+
+        $result = $this->sanitizer->sanitize((string)$filtered);
+
+        $this->assertSame([], $result->getRemoved());
+        $this->assertSame(
+            preg_replace('/\\s+/', '', (string)$filtered),
+            preg_replace('/\\s+/', '', $result->getHtml())
+        );
     }
 
     public function testDefaultContentHasTheAgreedCopy(): void

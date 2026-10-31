@@ -10,5 +10,7 @@
 "-- None --","-- Keine --"
 "Order confirmation","Bestellbestätigung"
 "Shipment","Versand"
-"Modern Sales Emails","Moderne Verkaufs-E-Mails"
 "The CMS block ""%1"" is used as email invitation. These elements are not email-safe and will be removed from the emails: %2.","Der CMS-Block ""%1"" wird als Einladung in E-Mails verwendet. Diese Elemente sind nicht E-Mail-tauglich und werden aus den E-Mails entfernt: %2."
+"%1 attribute","Attribut %1"
+"%1 (unsafe URL)","%1 (unsichere URL)"
+"%1 (unsafe value)","%1 (unsicherer Wert)"

@@ -12,7 +12,7 @@ interface SanitizedHtmlInterface
     public function getHtml(): string;
 
     /**
-     * Distinct names of what was removed: tag names, attributes prefixed with "@" (e.g. "script", "@onclick")
+     * Distinct, translated descriptions of what was removed, e.g. "script", "onclick attribute", "href (unsafe URL)"
      *
      * @return string[]
      */

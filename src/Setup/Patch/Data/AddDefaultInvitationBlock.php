@@ -27,7 +27,7 @@ class AddDefaultInvitationBlock implements DataPatchInterface
 <tr><td width="20" valign="top" style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:22px;color:#3a5a40"><strong>+</strong></td><td style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:22px;color:#2b2b2b">Tips and inspiration, a few times a month</td></tr>
 </tbody></table>
 </td></tr>
-<tr><td align="left" style="padding:0 24px 16px 24px"><a href="{{store url=""}}#newsletter" style="display:inline-block;padding:12px 24px;background-color:#3a5a40;color:#ffffff;font-family:Arial,Helvetica,sans-serif;font-size:15px;text-decoration:none">Sign up for the newsletter</a></td></tr>
+<tr><td align="left" style="padding:0 24px 16px 24px"><a href="{{store url=''}}#newsletter" style="display:inline-block;padding:12px 24px;background-color:#3a5a40;color:#ffffff;font-family:Arial,Helvetica,sans-serif;font-size:15px;text-decoration:none">Sign up for the newsletter</a></td></tr>
 <tr><td align="left" style="padding:0 24px 24px 24px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;color:#6b6b6b">We will send you a confirmation email first. You can unsubscribe at any time with one click.</td></tr>
 </tbody>
 </table>
