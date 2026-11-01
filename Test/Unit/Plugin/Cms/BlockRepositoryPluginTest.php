@@ -20,6 +20,7 @@ class BlockRepositoryPluginTest extends TestCase
     private ConfigInterface&MockObject $config;
     private ManagerInterface&MockObject $messages;
     private StoreManagerInterface&MockObject $storeManager;
+    private LoggerInterface&MockObject $logger;
     private BlockRepositoryPlugin $plugin;
 
     protected function setUp(): void
@@ -27,7 +28,7 @@ class BlockRepositoryPluginTest extends TestCase
         $this->config = $this->createMock(ConfigInterface::class);
         $this->messages = $this->createMock(ManagerInterface::class);
         $this->storeManager = $this->createMock(StoreManagerInterface::class);
-        $logger = $this->createMock(LoggerInterface::class);
+        $this->logger = $logger = $this->createMock(LoggerInterface::class);
         $this->plugin = new BlockRepositoryPlugin(
             $this->config,
             new EmailHtmlSanitizer(new SanitizedHtmlInterfaceFactory(), $logger),
@@ -102,5 +103,40 @@ class BlockRepositoryPluginTest extends TestCase
         $block->method('getContent')->willReturn($content);
 
         return $block;
+    }
+
+    public function testWarningTextListsBlockAndRemovedElements(): void
+    {
+        $this->stores([0 => null, 1 => 'invite']);
+        $block = $this->block('invite', '<p onclick="x()">a</p><script>1</script>');
+
+        $this->messages->expects($this->once())->method('addWarningMessage')->with(
+            'The CMS block "invite" is used as email invitation. These elements are not email-safe and will be '
+            . 'removed from the emails: onclick attribute, script.'
+        );
+
+        $this->plugin->afterSave($this->createMock(BlockRepositoryInterface::class), $block, $block);
+    }
+
+    public function testBlockWithoutIdentifierIsIgnored(): void
+    {
+        $block = $this->createMock(BlockInterface::class);
+        $block->method('getIdentifier')->willReturn(null);
+        $this->storeManager->expects($this->never())->method('getStores');
+        $this->logger->expects($this->never())->method('error');
+        $this->messages->expects($this->never())->method('addWarningMessage');
+
+        $this->assertSame($block, $this->plugin->afterSave($this->createMock(BlockRepositoryInterface::class), $block, $block));
+    }
+
+    public function testFailureIsLoggedWithMessageAndException(): void
+    {
+        $exception = new \RuntimeException('boom');
+        $this->storeManager->method('getStores')->willThrowException($exception);
+        $block = $this->block('invite', '<script>1</script>');
+        $this->logger->expects($this->once())->method('error')
+            ->with('Invitation block check failed: boom', ['exception' => $exception]);
+
+        $this->plugin->afterSave($this->createMock(BlockRepositoryInterface::class), $block, $block);
     }
 }

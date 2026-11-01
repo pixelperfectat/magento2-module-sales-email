@@ -97,7 +97,7 @@ class IdentityTemplatePluginTest extends TestCase
     private function identity(string $class, int $storeId): OrderIdentity|ShipmentIdentity
     {
         $store = $this->createMock(Store::class);
-        $store->method('getId')->willReturn($storeId);
+        $store->method('getId')->willReturn((string)$storeId); // core returns ids as strings
         $identity = $this->createMock($class);
         $identity->method('getStore')->willReturn($store);
 

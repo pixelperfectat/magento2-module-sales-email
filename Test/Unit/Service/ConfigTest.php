@@ -100,4 +100,18 @@ class ConfigTest extends TestCase
 
         $this->assertTrue($this->config->isInvitationEnabledFor('order', 9));
     }
+
+    public function testBlockIdentifierIsTrimmed(): void
+    {
+        $this->scopeConfig->method('getValue')->willReturn("  pp_invite \n");
+
+        $this->assertSame('pp_invite', $this->config->getInvitationBlockId());
+    }
+
+    public function testWhitespaceOnlyBlockIdentifierIsNull(): void
+    {
+        $this->scopeConfig->method('getValue')->willReturn("  \n");
+
+        $this->assertNull($this->config->getInvitationBlockId());
+    }
 }

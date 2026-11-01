@@ -73,4 +73,15 @@ class StoreEmulatorTest extends TestCase
             throw new \RuntimeException('boom');
         });
     }
+
+    public function testStoreIdFromCoreIsComparedAsInteger(): void
+    {
+        $store = $this->createMock(StoreInterface::class);
+        $store->method('getId')->willReturn('3'); // core hands the id out as a string
+        $this->storeManager->method('getStore')->willReturn($store);
+        $this->design->method('getArea')->willReturn('frontend');
+        $this->emulation->expects($this->never())->method('startEnvironmentEmulation');
+
+        $this->assertSame('x', $this->emulator->emulate(3, static fn (): string => 'x'));
+    }
 }
