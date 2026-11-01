@@ -125,6 +125,11 @@ shipped by this module.
 |---|---|---|
 | ![Both enabled](docs/screenshots/matrix-a-both-enabled.jpg) | ![Sales email only](docs/screenshots/matrix-b-sales-email-only.jpg) | ![Discount lines only](docs/screenshots/matrix-c-discount-lines-only.jpg) |
 
+"Sales email only" shows Magento's own discount row, unchanged. Core Magento appends the sales rule's
+description to that label, so an internal note in the rule description reaches the customer. The
+[Discount Lines](https://github.com/pixelperfectat/magento2-module-discount-lines) module replaces that row
+with one line per rule and never shows the description.
+
 ## Translations
 
 The module ships `en_US` and `de_DE` (formal "Sie") for its own strings only. Strings that Magento core already
