@@ -16,6 +16,7 @@ class EmailTotalsTest extends TestCase
 {
     private ScopeConfigInterface&MockObject $scopeConfig;
     private Repository&MockObject $assets;
+    private LoggerInterface&MockObject $logger;
     private EmailTotals $viewModel;
 
     protected function setUp(): void
@@ -24,11 +25,12 @@ class EmailTotalsTest extends TestCase
         $emulator = $this->createMock(StoreEmulatorInterface::class);
         $emulator->method('emulate')->willReturnCallback(static fn (int $storeId, callable $cb) => $cb());
         $this->assets = $this->createMock(Repository::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
         $this->viewModel = new EmailTotals(
             $this->scopeConfig,
             $emulator,
             $this->assets,
-            $this->createMock(LoggerInterface::class)
+            $this->logger
         );
     }
 
@@ -55,5 +57,15 @@ class EmailTotalsTest extends TestCase
         $this->scopeConfig->method('isSetFlag')->willReturn(true);
 
         $this->assertNull($this->viewModel->getIconUrl('mystery', 2));
+    }
+
+    public function testAssetFailureIsLoggedWithItsMessageAndGivesNoIcon(): void
+    {
+        $this->scopeConfig->method('isSetFlag')->willReturn(true);
+        $this->assets->method('getUrl')->willThrowException(new \RuntimeException('boom'));
+        $this->logger->expects($this->once())->method('warning')
+            ->with('Email discount icon could not be built: boom');
+
+        $this->assertNull($this->viewModel->getIconUrl('coupon', 2));
     }
 }

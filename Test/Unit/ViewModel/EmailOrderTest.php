@@ -35,10 +35,10 @@ class EmailOrderTest extends TestCase
     public function testFormatsInTheStoreLocaleAndTimezone(): void
     {
         $order = $this->createMock(Order::class);
-        $order->method('getStoreId')->willReturn(2);
+        $order->method('getStoreId')->willReturn('2'); // core returns ids as strings
         $order->method('getCreatedAt')->willReturn('2026-10-31 15:00:00');
         $this->repository->method('get')->with(5)->willReturn($order);
-        $this->scopeConfig->method('getValue')->with('general/locale/code', 'store', 2)->willReturn('de_DE');
+        $this->scopeConfig->method('getValue')->with('general/locale/code', 'store', $this->identicalTo(2))->willReturn('de_DE');
         $this->timezone->method('getConfigTimezone')->with('store', '2')->willReturn('Europe/Vienna');
         $this->timezone->expects($this->once())->method('formatDateTime')
             ->with('2026-10-31 15:00:00', 2, 2, 'de_DE', 'Europe/Vienna')

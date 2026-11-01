@@ -19,17 +19,19 @@ class ShipmentTrackingTest extends TestCase
 {
     private ShipmentRepositoryInterface&MockObject $repository;
     private ShippingHelper&MockObject $helper;
+    private LoggerInterface&MockObject $logger;
     private ShipmentTracking $viewModel;
 
     protected function setUp(): void
     {
         $this->repository = $this->createMock(ShipmentRepositoryInterface::class);
         $this->helper = $this->createMock(ShippingHelper::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
         $this->viewModel = new ShipmentTracking(
             $this->repository,
             $this->helper,
             new TrackingInterfaceFactory(),
-            $this->createMock(LoggerInterface::class)
+            $this->logger
         );
     }
 
@@ -117,5 +119,34 @@ class ShipmentTrackingTest extends TestCase
         $this->repository->method('get')->willThrowException(new NoSuchEntityException());
 
         $this->assertSame([], $this->viewModel->getTracks(7));
+    }
+
+    public function testNumberTitleAndUrlAreTrimmed(): void
+    {
+        $this->shipmentWith([$this->track(' EX1 ', "  Example Parcel\n")]);
+        $this->helper->method('getTrackingPopupUrlBySalesModel')->willReturn(" https://shop.example.com/t \n");
+
+        $track = $this->viewModel->getTracks(7)[0];
+
+        $this->assertSame('EX1', $track->getNumber());
+        $this->assertSame('Example Parcel', $track->getCarrierTitle());
+        $this->assertSame('https://shop.example.com/t', $track->getUrl());
+    }
+
+    public function testBlankUrlBecomesNull(): void
+    {
+        $this->shipmentWith([$this->track('EX1', 'Example Parcel')]);
+        $this->helper->method('getTrackingPopupUrlBySalesModel')->willReturn("  \t");
+
+        $this->assertNull($this->viewModel->getTracks(7)[0]->getUrl());
+    }
+
+    public function testHelperFailureIsLoggedWithItsMessage(): void
+    {
+        $this->shipmentWith([$this->track('EX1', 'Example Parcel')]);
+        $this->helper->method('getTrackingPopupUrlBySalesModel')->willThrowException(new \RuntimeException('boom'));
+        $this->logger->expects($this->once())->method('warning')->with('Tracking URL could not be built: boom');
+
+        $this->viewModel->getTracks(7);
     }
 }

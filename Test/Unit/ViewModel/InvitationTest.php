@@ -43,6 +43,7 @@ class InvitationTest extends TestCase
     public function testEmptyWhenNotEnabledForType(): void
     {
         $this->config->method('isInvitationEnabledFor')->with('shipment', 3)->willReturn(false);
+        $this->config->expects($this->never())->method('getInvitationBlockId');
         $this->getBlock->expects($this->never())->method('execute');
 
         $this->assertSame('', $this->viewModel->getHtml('shipment', 3));
@@ -53,6 +54,7 @@ class InvitationTest extends TestCase
         $this->config->method('isInvitationEnabledFor')->willReturn(true);
         $this->config->method('getInvitationBlockId')->with(3)->willReturn(null);
         $this->getBlock->expects($this->never())->method('execute');
+        $this->logger->expects($this->never())->method('error');
 
         $this->assertSame('', $this->viewModel->getHtml('order', 3));
     }
@@ -61,6 +63,7 @@ class InvitationTest extends TestCase
     {
         $this->arrangeConfigured();
         $this->getBlock->method('execute')->willThrowException(new NoSuchEntityException(__('none')));
+        $this->logger->expects($this->never())->method('error');
 
         $this->assertSame('', $this->viewModel->getHtml('order', 3));
     }
@@ -97,13 +100,18 @@ class InvitationTest extends TestCase
 
     public function testFilterFailureIsLoggedAndYieldsEmpty(): void
     {
+        $exception = new \RuntimeException('boom');
         $this->arrangeConfigured();
         $block = $this->createMock(BlockInterface::class);
         $block->method('isActive')->willReturn(true);
         $block->method('getContent')->willReturn('x');
         $this->getBlock->method('execute')->willReturn($block);
-        $this->filterProvider->method('getBlockFilter')->willThrowException(new \RuntimeException('boom'));
-        $this->logger->expects($this->once())->method('error');
+        $this->filterProvider->method('getBlockFilter')->willThrowException($exception);
+        $this->logger->expects($this->once())->method('error')
+            ->with(
+                'Invitation block could not be rendered: boom',
+                ['exception' => $exception]
+            );
 
         $this->assertSame('', $this->viewModel->getHtml('order', 3));
     }
