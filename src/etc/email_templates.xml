@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Email:etc/email_templates.xsd">
+    <template id="pp_sales_email_order_template" label="New Order (Modern Layout)" file="order_new.html"
+              type="html" module="PixelPerfect_SalesEmail" area="frontend"/>
+    <template id="pp_sales_email_order_guest_template" label="New Order for Guest (Modern Layout)"
+              file="order_new_guest.html" type="html" module="PixelPerfect_SalesEmail" area="frontend"/>
+    <template id="pp_sales_email_shipment_template" label="New Shipment (Modern Layout)" file="shipment_new.html"
+              type="html" module="PixelPerfect_SalesEmail" area="frontend"/>
+    <template id="pp_sales_email_shipment_guest_template" label="New Shipment for Guest (Modern Layout)"
+              file="shipment_new_guest.html" type="html" module="PixelPerfect_SalesEmail" area="frontend"/>
+</config>

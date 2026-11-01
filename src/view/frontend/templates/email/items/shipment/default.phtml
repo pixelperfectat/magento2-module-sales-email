@@ -1,0 +1,49 @@
+<?php
+/**
+ * Shipment item row: image (64 px), name with options, quantity shipped. No prices.
+ */
+
+declare(strict_types=1);
+
+// phpcs:disable Magento2.Templates.ThisInTemplate
+
+use Magento\Framework\Escaper;
+use Magento\Sales\Block\Order\Email\Items\DefaultItems;
+use PixelPerfect\SalesEmail\ViewModel\EmailItem;
+
+/** @var DefaultItems $block */
+/** @var Escaper $escaper */
+
+$item = $block->getItem();
+/** @var EmailItem $viewModel */
+$viewModel = $block->getData('view_model');
+$storeId = (int)$item->getOrder()->getStoreId();
+$imageUrl = $viewModel->getImageUrl($item->getOrderItem(), $storeId);
+$options = $block->getItemOptions();
+?>
+<tr>
+    <td class="pp-item-image" width="64" valign="middle">
+        <?php if ($imageUrl !== null): ?>
+            <img class="pp-item-img" src="<?= $escaper->escapeUrl($imageUrl) ?>" width="64" height="64"
+                 alt="<?= $escaper->escapeHtmlAttr($item->getName()) ?>" border="0" />
+        <?php else: ?>
+            <table role="presentation" width="64" height="64" cellpadding="0" cellspacing="0" border="0">
+                <tr><td class="pp-item-placeholder" width="64" height="64" bgcolor="#f6f6f4">&nbsp;</td></tr>
+            </table>
+        <?php endif; ?>
+    </td>
+    <td class="pp-item-info" valign="middle">
+        <p class="pp-item-name"><?= $escaper->escapeHtml($item->getName()) ?></p>
+        <?php if ($options): ?>
+            <p class="pp-item-options">
+                <?php foreach ($options as $option): ?>
+                    <?= $escaper->escapeHtml($option['label']) ?>:
+                    <?= /* @noEscape */ $escaper->escapeHtml(nl2br((string)$option['value']), ['br', 'a']) ?><br />
+                <?php endforeach; ?>
+            </p>
+        <?php endif; ?>
+    </td>
+    <td class="pp-item-qty" valign="middle" align="right">
+        <?= $escaper->escapeHtml(__('Qty: %1', $viewModel->formatQty((float)$item->getQty(), $storeId))) ?>
+    </td>
+</tr>

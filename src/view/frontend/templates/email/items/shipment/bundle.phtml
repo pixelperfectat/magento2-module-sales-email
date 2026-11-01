@@ -1,0 +1,81 @@
+<?php
+/**
+ * Bundle shipment item: parent row, shipped selections listed under it in the muted style. No prices.
+ */
+
+declare(strict_types=1);
+
+// phpcs:disable Magento2.Templates.ThisInTemplate
+
+use Magento\Bundle\Block\Sales\Order\Items\Renderer;
+use Magento\Framework\Escaper;
+use PixelPerfect\SalesEmail\ViewModel\EmailItem;
+
+/** @var Renderer $block */
+/** @var Escaper $escaper */
+
+$parent = $block->getItem();
+$parentOrderItem = $parent->getOrderItem();
+/** @var EmailItem $viewModel */
+$viewModel = $block->getData('view_model');
+$storeId = (int)$parent->getOrder()->getStoreId();
+$imageUrl = $viewModel->getImageUrl($parentOrderItem, $storeId);
+$shipItems = $block->getChildren($parent);
+$separately = $block->isShipmentSeparately();
+$options = $block->getItemOptions();
+?>
+<tr>
+    <td class="pp-item-image pp-item-open" width="64" valign="middle">
+        <?php if ($imageUrl !== null): ?>
+            <img class="pp-item-img" src="<?= $escaper->escapeUrl($imageUrl) ?>" width="64" height="64"
+                 alt="<?= $escaper->escapeHtmlAttr($parent->getName()) ?>" border="0" />
+        <?php else: ?>
+            <table role="presentation" width="64" height="64" cellpadding="0" cellspacing="0" border="0">
+                <tr><td class="pp-item-placeholder" width="64" height="64" bgcolor="#f6f6f4">&nbsp;</td></tr>
+            </table>
+        <?php endif; ?>
+    </td>
+    <td class="pp-item-info pp-item-open" valign="middle">
+        <p class="pp-item-name"><?= $escaper->escapeHtml($parent->getName()) ?></p>
+    </td>
+    <td class="pp-item-qty pp-item-open" valign="middle" align="right">
+        <?php if (!$separately): ?>
+            <?= $escaper->escapeHtml(__('Qty: %1', $viewModel->formatQty((float)$parent->getQty(), $storeId))) ?>
+        <?php endif; ?>
+    </td>
+</tr>
+<?php $previousOption = null; ?>
+<?php foreach ($parentOrderItem->getChildrenItems() as $child): ?>
+    <?php if ($separately && !isset($shipItems[$child->getId()])): ?>
+        <?php continue; ?>
+    <?php endif; ?>
+    <?php $attributes = $block->getSelectionAttributes($child); ?>
+    <?php if ($previousOption !== $attributes['option_id']): ?>
+        <tr>
+            <td></td>
+            <td colspan="2" class="pp-item-option-label"><?= $escaper->escapeHtml($attributes['option_label']) ?></td>
+        </tr>
+        <?php $previousOption = $attributes['option_id']; ?>
+    <?php endif; ?>
+    <tr>
+        <td></td>
+        <td class="pp-item-child"><?= /* @noEscape */ $block->getValueHtml($child) ?></td>
+        <td class="pp-item-child" align="right">
+            <?php if ($separately): ?>
+                <?= $escaper->escapeHtml(__('Qty: %1', $viewModel->formatQty((float)$shipItems[$child->getId()]->getQty(), $storeId))) ?>
+            <?php endif; ?>
+        </td>
+    </tr>
+<?php endforeach; ?>
+<tr>
+    <td colspan="3" class="pp-item-extra">
+        <?php if ($options): ?>
+            <p class="pp-item-options">
+                <?php foreach ($options as $option): ?>
+                    <?= $escaper->escapeHtml($option['label']) ?>:
+                    <?= /* @noEscape */ $escaper->escapeHtml(nl2br((string)$option['value']), ['br', 'a']) ?><br />
+                <?php endforeach; ?>
+            </p>
+        <?php endif; ?>
+    </td>
+</tr>

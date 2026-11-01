@@ -1,0 +1,55 @@
+<?php
+/**
+ * Tracking strip: one box per track with number, carrier and, when a URL exists, the "Track shipment" button.
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use PixelPerfect\SalesEmail\ViewModel\ShipmentTracking;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+
+/** @var ShipmentTracking $viewModel */
+$viewModel = $block->getData('view_model');
+$tracks = $viewModel->getTracks((int)$block->getData('shipment_id'));
+?>
+<?php foreach ($tracks as $track): ?>
+    <?php $trackUrl = $track->getUrl(); ?>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+            <td class="pp-track-wrap">
+                <table role="presentation" class="pp-track" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f6f6f4">
+                    <tr>
+                        <td class="pp-track-cell" align="left" valign="top">
+                            <span class="pp-small"><?= $escaper->escapeHtml(__('Tracking number')) ?></span><br />
+                            <span class="pp-track-number"><?= $escaper->escapeHtml($track->getNumber()) ?></span>
+                        </td>
+                        <?php if ($track->getCarrierTitle() !== ''): ?>
+                            <td class="pp-track-cell pp-track-right" align="right" valign="top">
+                                <span class="pp-small"><?= $escaper->escapeHtml(__('Shipped with')) ?></span><br />
+                                <span class="pp-track-carrier"><?= $escaper->escapeHtml($track->getCarrierTitle()) ?></span>
+                            </td>
+                        <?php endif; ?>
+                    </tr>
+                    <?php if ($trackUrl !== null): ?>
+                        <tr>
+                            <td class="pp-track-action" colspan="<?= $track->getCarrierTitle() !== '' ? 2 : 1 ?>" align="left">
+                                <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                                    <tr>
+                                        <td class="pp-button-cell" bgcolor="#3a5a40">
+                                            <a class="pp-button" href="<?= $escaper->escapeUrl($trackUrl) ?>"
+                                               target="_blank" rel="noopener"><?= $escaper->escapeHtml(__('Track shipment')) ?></a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    <?php endif; ?>
+                </table>
+            </td>
+        </tr>
+    </table>
+<?php endforeach; ?>

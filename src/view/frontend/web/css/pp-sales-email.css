@@ -1,0 +1,396 @@
+/*
+ * Modern sales email palette and layout. Inlined by Magento's email inliner.
+ * Neutral defaults: ink #2b2b2b, muted #6b6b6b, line #e3e3e3, tint #f6f6f4, accent #3a5a40.
+ * A shop module or theme overrides the whole file by shipping
+ * <theme>/PixelPerfect_SalesEmail/web/css/pp-sales-email.css.
+ * Email clients: tables only, no flex, no grid, no custom properties.
+ */
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #ececea;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+td,
+th,
+p {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: #2b2b2b;
+}
+
+a {
+    color: #3a5a40;
+}
+
+img {
+    border: 0;
+}
+
+.pp-outer-cell {
+    padding: 24px 12px;
+}
+
+.pp-card {
+    background-color: #ffffff;
+    width: 600px;
+}
+
+.pp-header {
+    padding: 28px 40px;
+    border-bottom: 1px solid #e3e3e3;
+}
+
+.pp-header-order {
+    font-size: 12px;
+    color: #6b6b6b;
+    text-align: right;
+}
+
+.pp-headline {
+    padding: 44px 40px 8px;
+}
+
+.pp-title {
+    margin: 0 0 12px;
+    font-size: 32px;
+    line-height: 40px;
+    font-weight: 300;
+    color: #2b2b2b;
+}
+
+.pp-intro {
+    margin: 0 0 8px;
+    font-size: 15px;
+    line-height: 24px;
+    color: #2b2b2b;
+}
+
+.pp-strip-wrap {
+    padding: 24px 40px 0;
+}
+
+.pp-strip {
+    background-color: #f6f6f4;
+}
+
+.pp-strip-cell {
+    padding: 16px 20px;
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 22px;
+}
+
+.pp-strip-right {
+    text-align: right;
+}
+
+.pp-small {
+    font-size: 12px;
+    font-weight: normal;
+    line-height: 18px;
+    color: #6b6b6b;
+}
+
+.pp-note {
+    padding: 24px 40px 0;
+    font-size: 14px;
+    line-height: 22px;
+}
+
+.pp-items-wrap {
+    padding: 32px 40px 8px;
+}
+
+.pp-item-image {
+    padding: 14px 16px 14px 0;
+    border-bottom: 1px solid #e3e3e3;
+    width: 64px;
+    vertical-align: middle;
+}
+
+.pp-item-img {
+    display: block;
+    width: 64px;
+    height: 64px;
+}
+
+.pp-item-placeholder {
+    width: 64px;
+    height: 64px;
+    background-color: #f6f6f4;
+    font-size: 1px;
+    line-height: 1px;
+}
+
+.pp-item-info {
+    padding: 14px 16px 14px 0;
+    border-bottom: 1px solid #e3e3e3;
+    vertical-align: middle;
+    font-size: 15px;
+    line-height: 22px;
+}
+
+.pp-item-name {
+    margin: 0;
+    font-size: 15px;
+    line-height: 22px;
+    font-weight: bold;
+}
+
+.pp-item-meta {
+    margin: 2px 0 0;
+    font-size: 13px;
+    line-height: 19px;
+    color: #6b6b6b;
+}
+
+.pp-item-options {
+    margin: 4px 0 0;
+    font-size: 13px;
+    line-height: 19px;
+    color: #6b6b6b;
+}
+
+.pp-item-price {
+    padding: 14px 0;
+    border-bottom: 1px solid #e3e3e3;
+    vertical-align: middle;
+    text-align: right;
+    font-size: 15px;
+    white-space: nowrap;
+}
+
+.pp-track-wrap {
+    padding: 24px 40px 0;
+}
+
+.pp-track {
+    background-color: #f6f6f4;
+    border-top: 3px solid #3a5a40;
+}
+
+.pp-track-cell {
+    padding: 24px 28px 8px;
+    font-size: 15px;
+    line-height: 22px;
+}
+
+.pp-track-right {
+    text-align: right;
+}
+
+.pp-track-number {
+    font-size: 22px;
+    line-height: 30px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    color: #2b2b2b;
+}
+
+.pp-track-carrier {
+    font-size: 15px;
+    line-height: 30px;
+    font-weight: bold;
+}
+
+.pp-track-action {
+    padding: 8px 28px 28px;
+}
+
+.pp-button-cell {
+    background-color: #3a5a40;
+    padding: 14px 28px;
+}
+
+.pp-button {
+    display: inline-block;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 15px;
+    line-height: 20px;
+    font-weight: bold;
+}
+
+.pp-section-title {
+    margin: 0;
+    padding: 0 0 8px;
+    font-size: 12px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    font-weight: bold;
+    color: #6b6b6b;
+}
+
+.pp-item-qty {
+    padding: 14px 0;
+    border-bottom: 1px solid #e3e3e3;
+    vertical-align: middle;
+    text-align: right;
+    font-size: 13px;
+    color: #6b6b6b;
+    white-space: nowrap;
+}
+
+.pp-totals-wrap {
+    padding: 8px 0 0;
+}
+
+.pp-item-extra {
+    padding: 4px 0 14px;
+    border-bottom: 1px solid #e3e3e3;
+    font-size: 13px;
+    line-height: 19px;
+    color: #6b6b6b;
+}
+
+.pp-item-child {
+    padding: 2px 0 2px 16px;
+    font-size: 13px;
+    line-height: 19px;
+    color: #6b6b6b;
+}
+
+.pp-item-option-label {
+    padding: 6px 0 0 16px;
+    font-size: 13px;
+    line-height: 19px;
+    font-weight: bold;
+    color: #6b6b6b;
+}
+
+.pp-gift {
+    margin: 8px 0 0;
+}
+
+.pp-gift-cell {
+    padding: 10px 14px;
+    background-color: #f6f6f4;
+    font-size: 13px;
+    line-height: 20px;
+    color: #2b2b2b;
+}
+
+.pp-gift-label {
+    color: #6b6b6b;
+}
+
+.pp-item-open {
+    border-bottom: 0;
+}
+
+.pp-total-label {
+    padding: 4px 0;
+    text-align: left;
+    font-size: 14px;
+    line-height: 22px;
+    font-weight: normal;
+    color: #2b2b2b;
+}
+
+.pp-total-value {
+    padding: 4px 0 4px 16px;
+    text-align: right;
+    font-size: 14px;
+    line-height: 22px;
+    white-space: nowrap;
+    color: #2b2b2b;
+}
+
+.pp-total-grand-label {
+    padding: 12px 0 0;
+    border-top: 1px solid #e3e3e3;
+    text-align: left;
+    font-size: 17px;
+    line-height: 24px;
+    font-weight: bold;
+}
+
+.pp-total-grand-value {
+    padding: 12px 0 0 16px;
+    border-top: 1px solid #e3e3e3;
+    text-align: right;
+    font-size: 17px;
+    line-height: 24px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.pp-code {
+    font-family: Menlo, Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    padding: 1px 6px;
+    background-color: #f6f6f4;
+    border: 1px solid #e3e3e3;
+    color: #2b2b2b;
+}
+
+.pp-total-icon {
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    margin-right: 6px;
+}
+
+.pp-invitation-wrap {
+    padding: 36px 40px 0;
+}
+
+.pp-invitation {
+    font-size: 15px;
+    line-height: 24px;
+}
+
+.pp-details {
+    padding: 40px 40px 8px;
+}
+
+.pp-details-title {
+    padding: 0 0 16px;
+    font-size: 12px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    font-weight: bold;
+    color: #6b6b6b;
+}
+
+.pp-details-cell {
+    padding: 0 12px 20px 0;
+    width: 50%;
+    vertical-align: top;
+    font-size: 13px;
+    line-height: 20px;
+}
+
+.pp-details-label {
+    color: #6b6b6b;
+}
+
+.pp-footer {
+    padding: 28px 40px 32px;
+    border-top: 1px solid #e3e3e3;
+    text-align: center;
+}
+
+.pp-footer-thanks {
+    margin: 0 0 14px;
+    font-size: 15px;
+    line-height: 23px;
+    color: #3a5a40;
+}
+
+.pp-footer-contact {
+    margin: 0;
+    font-size: 12px;
+    line-height: 18px;
+    color: #6b6b6b;
+}
+
+@media only screen and (max-width: 620px) {
+    .pp-card {
+        width: 100% !important;
+    }
+}

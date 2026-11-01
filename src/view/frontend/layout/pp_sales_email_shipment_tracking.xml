@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd"
+      label="Modern Email Shipment Tracking" design_abstraction="custom">
+    <body>
+        <block class="Magento\Framework\View\Element\Template" name="pp.email.shipment.tracking"
+               template="PixelPerfect_SalesEmail::email/shipment/tracking.phtml" cacheable="false">
+            <arguments>
+                <argument name="view_model" xsi:type="object">PixelPerfect\SalesEmail\ViewModel\ShipmentTracking</argument>
+            </arguments>
+        </block>
+    </body>
+</page>

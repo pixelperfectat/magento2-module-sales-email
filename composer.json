@@ -1,0 +1,88 @@
+{
+    "name": "pixelperfectat/magento2-module-sales-email",
+    "description": "Modern order confirmation and shipment emails with a configurable invitation block",
+    "type": "magento2-module",
+    "license": "MIT",
+    "prefer-stable": true,
+    "require": {
+        "ext-intl": "*",
+        "magento/framework": "^103.0",
+        "magento/module-catalog": "^104.0",
+        "magento/module-cms": "^104.0",
+        "magento/module-config": "^101.0",
+        "magento/module-email": "^101.0",
+        "magento/module-gift-message": "^100.4",
+        "magento/module-sales": "^103.0",
+        "magento/module-shipping": "^100.4",
+        "magento/module-store": "^101.0",
+        "magento/module-tax": "^100.4",
+        "php": "^8.3"
+    },
+    "suggest": {
+        "magento/module-bundle": "Bundle item rows in the emails",
+        "magento/module-downloadable": "Downloadable item rows in the emails",
+        "pixelperfectat/magento2-module-discount-lines": "Itemised discount rows in the totals of the emails"
+    },
+    "require-dev": {
+        "infection/infection": "^0.35",
+        "phpunit/phpunit": "^9.6",
+        "pixelperfectat/coding-standard": "^0.2.2"
+    },
+    "autoload": {
+        "files": [
+            "src/registration.php"
+        ],
+        "psr-4": {
+            "PixelPerfect\\SalesEmail\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "files": [
+            "Test/Stub/GeneratedFactories.php"
+        ],
+        "psr-4": {
+            "PixelPerfect\\SalesEmail\\Test\\": "Test/"
+        }
+    },
+    "scripts": {
+        "lint": "parallel-lint --exclude vendor --exclude generated .",
+        "cs": "phpcs",
+        "cs:fix": "phpcbf",
+        "stan": "phpstan analyse",
+        "test": "phpunit",
+        "infection": "infection --with-uncovered --min-msi=85 --min-covered-msi=90 --threads=max",
+        "ci:validate": "@composer validate --no-check-publish",
+        "check": [
+            "@ci:validate",
+            "@lint",
+            "@cs",
+            "@stan",
+            "@test",
+            "@infection"
+        ]
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "cweagans/composer-patches": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "ergebnis/composer-normalize": true,
+            "infection/extension-installer": true,
+            "laminas/laminas-dependency-plugin": true,
+            "magento/*": true,
+            "php-http/discovery": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://repo.magento.com/"
+        }
+    ],
+    "extra": {
+        "branch-alias": {
+            "dev-main": "1.0.x-dev"
+        }
+    }
+}

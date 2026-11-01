@@ -1,0 +1,70 @@
+<?php
+/**
+ * Downloadable order item: like the default row, with the purchased links under the name.
+ */
+
+declare(strict_types=1);
+
+// phpcs:disable Magento2.Templates.ThisInTemplate
+
+use Magento\Framework\Escaper;
+use Magento\Downloadable\Block\Sales\Order\Email\Items\Order\Downloadable;
+use PixelPerfect\SalesEmail\ViewModel\EmailGiftMessage;
+use PixelPerfect\SalesEmail\ViewModel\EmailItem;
+
+/** @var Downloadable $block */
+/** @var Escaper $escaper */
+
+$item = $block->getItem();
+$order = $item->getOrder();
+/** @var EmailItem $viewModel */
+$viewModel = $block->getData('view_model');
+/** @var EmailGiftMessage $giftViewModel */
+$giftViewModel = $block->getData('gift_view_model');
+$imageUrl = $viewModel->getImageUrl($item, (int)$order->getStoreId());
+$giftHtml = $giftViewModel->getItemHtml($item);
+$options = $block->getItemOptions();
+$open = $giftHtml !== '' ? ' pp-item-open' : '';
+$links = $block->getLinks()->getPurchasedItems();
+?>
+<tr>
+    <td class="pp-item-image<?= $open ?>" width="64" valign="middle">
+        <?php if ($imageUrl !== null): ?>
+            <img class="pp-item-img" src="<?= $escaper->escapeUrl($imageUrl) ?>" width="64" height="64"
+                 alt="<?= $escaper->escapeHtmlAttr($item->getName()) ?>" border="0" />
+        <?php else: ?>
+            <table role="presentation" width="64" height="64" cellpadding="0" cellspacing="0" border="0">
+                <tr><td class="pp-item-placeholder" width="64" height="64" bgcolor="#f6f6f4">&nbsp;</td></tr>
+            </table>
+        <?php endif; ?>
+    </td>
+    <td class="pp-item-info<?= $open ?>" valign="middle">
+        <p class="pp-item-name"><?= $escaper->escapeHtml($item->getName()) ?></p>
+        <p class="pp-item-meta"><?= $escaper->escapeHtml(__('Qty: %1', $viewModel->formatQty((float)$item->getQtyOrdered(), (int)$order->getStoreId()))) ?></p>
+        <?php if ($options): ?>
+            <p class="pp-item-options">
+                <?php foreach ($options as $option): ?>
+                    <?= $escaper->escapeHtml($option['label']) ?>:
+                    <?= /* @noEscape */ $escaper->escapeHtml(nl2br((string)$option['value']), ['br', 'a']) ?><br />
+                <?php endforeach; ?>
+            </p>
+        <?php endif; ?>
+        <?php if ($links): ?>
+            <p class="pp-item-options">
+                <strong><?= $escaper->escapeHtml($block->getLinksTitle()) ?></strong><br />
+                <?php foreach ($links as $link): ?>
+                    <?= $escaper->escapeHtml($link->getLinkTitle()) ?>
+                    (<a href="<?= $escaper->escapeUrl($block->getPurchasedLinkUrl($link)) ?>"><?= $escaper->escapeHtml(__('download')) ?></a>)<br />
+                <?php endforeach; ?>
+            </p>
+        <?php endif; ?>
+    </td>
+    <td class="pp-item-price<?= $open ?>" valign="middle" align="right">
+        <?= /* @noEscape */ $block->getItemPrice($item) ?>
+    </td>
+</tr>
+<?php if ($giftHtml !== ''): ?>
+    <tr>
+        <td colspan="3" class="pp-item-extra"><?= /* @noEscape */ $giftHtml ?></td>
+    </tr>
+<?php endif; ?>

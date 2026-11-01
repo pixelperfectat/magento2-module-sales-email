@@ -1,0 +1,76 @@
+<?php
+/**
+ * Email totals rows. Discount lines (rows carrying the discount_line data key, whatever their code)
+ * get the coupon code in monospace, an optional PNG icon and "Gift" / "Free" for zero amounts;
+ * every other row prints its core label and value.
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\DataObject;
+use Magento\Framework\Escaper;
+use Magento\Sales\Block\Order\Totals;
+use PixelPerfect\SalesEmail\ViewModel\EmailTotals;
+
+/** @var Totals $block */
+/** @var Escaper $escaper */
+
+/** @var EmailTotals $viewModel */
+$viewModel = $block->getData('view_model');
+$order = $block->getOrder();
+$storeId = (int)$order->getStoreId();
+$prefixes = [
+    'coupon' => (string)__('Coupon'),
+    'free_shipping' => (string)__('Coupon'),
+    'gift' => (string)__('Gift'),
+    'gift_card' => (string)__('Gift card'),
+];
+$zeroTexts = ['gift' => (string)__('Gift'), 'free_shipping' => (string)__('Free')];
+?>
+<?php foreach ($block->getTotals() as $code => $total): ?>
+    <?php /** @var DataObject $total */ ?>
+    <?php if ($total->getBlockName()): ?>
+        <?= /* @noEscape */ $block->getChildHtml($total->getBlockName(), false) ?>
+        <?php continue; ?>
+    <?php endif; ?>
+    <?php $line = $total->getData('discount_line'); ?>
+    <?php if (is_array($line)): ?>
+        <?php
+        $kind = (string)($line['kind'] ?? '');
+        $lineCode = (string)($line['code'] ?? '');
+        $amount = (float)($line['amount'] ?? 0);
+        $iconUrl = $viewModel->getIconUrl($kind, $storeId);
+        $amountHtml = null;
+        if (abs($amount) > 0.00001) {
+            $amountText = null;
+            $amountHtml = $order->formatPrice(-abs($amount));
+        } else {
+            $amountText = $zeroTexts[$kind] ?? null;
+        }
+        ?>
+        <tr class="<?= $escaper->escapeHtmlAttr($code) ?>">
+            <th class="pp-total-label" scope="row" align="left">
+                <?php if ($iconUrl !== null): ?>
+                    <img class="pp-total-icon" src="<?= $escaper->escapeUrl($iconUrl) ?>" width="16" height="16" alt="" border="0" />
+                <?php endif; ?>
+                <?php if ($lineCode !== ''): ?>
+                    <?= $escaper->escapeHtml($prefixes[$kind] ?? (string)($line['label'] ?? $total->getLabel())) ?>
+                    <span class="pp-code" style="font-family:Menlo,Consolas,monospace"><?= $escaper->escapeHtml($lineCode) ?></span>
+                <?php else: ?>
+                    <?= $escaper->escapeHtml((string)($line['label'] ?? $total->getLabel())) ?>
+                <?php endif; ?>
+            </th>
+            <td class="pp-total-value" align="right"><?php if ($amountText !== null): ?><?= $escaper->escapeHtml($amountText) ?><?php else: ?><?= /* @noEscape */ $amountHtml ?? $order->formatPrice(0) ?><?php endif; ?></td>
+        </tr>
+        <?php continue; ?>
+    <?php endif; ?>
+    <?php $strong = (bool)$total->getStrong(); ?>
+    <tr class="<?= $escaper->escapeHtmlAttr($code) ?>">
+        <th class="<?= $strong ? 'pp-total-grand-label' : 'pp-total-label' ?>" scope="row" align="left">
+            <?= $escaper->escapeHtml($total->getLabel()) ?>
+        </th>
+        <td class="<?= $strong ? 'pp-total-grand-value' : 'pp-total-value' ?>" align="right">
+            <?= /* @noEscape */ $block->formatValue($total) ?>
+        </td>
+    </tr>
+<?php endforeach; ?>

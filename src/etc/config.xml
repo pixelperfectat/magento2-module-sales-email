@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <pp_sales_email>
+            <general>
+                <enabled>1</enabled>
+            </general>
+            <invitation>
+                <cms_block></cms_block>
+                <enabled_for>order,shipment</enabled_for>
+            </invitation>
+        </pp_sales_email>
+        <sales_email>
+            <order>
+                <template>pp_sales_email_order_template</template>
+                <guest_template>pp_sales_email_order_guest_template</guest_template>
+            </order>
+            <shipment>
+                <template>pp_sales_email_shipment_template</template>
+                <guest_template>pp_sales_email_shipment_guest_template</guest_template>
+            </shipment>
+        </sales_email>
+    </default>
+</config>

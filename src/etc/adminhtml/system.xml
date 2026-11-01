@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="pp_sales_email" translate="label" type="text" sortOrder="303"
+                 showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Modern Sales Emails</label>
+            <tab>sales</tab>
+            <resource>PixelPerfect_SalesEmail::config</resource>
+            <group id="general" translate="label" type="text" sortOrder="10"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Use Modern Email Layout</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Send the order confirmation and shipment emails in the modern layout. When set to No, this store view uses the core templates.</comment>
+                </field>
+            </group>
+            <group id="invitation" translate="label" type="text" sortOrder="20"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Invitation Block</label>
+                <field id="cms_block" translate="label comment" type="select" sortOrder="10"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>CMS Block</label>
+                    <source_model>PixelPerfect\SalesEmail\Model\Config\Source\CmsBlock</source_model>
+                    <comment>Content shown in the emails, for example a newsletter invitation. Leave empty to hide it. Emails support only simple markup: text, links, images, tables and inline styles. Scripts, styles, forms and SVG are removed.</comment>
+                </field>
+                <field id="enabled_for" translate="label comment" type="multiselect" sortOrder="20"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Show In</label>
+                    <source_model>PixelPerfect\SalesEmail\Model\Config\Source\EmailType</source_model>
+                    <comment>The emails that include the invitation block.</comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

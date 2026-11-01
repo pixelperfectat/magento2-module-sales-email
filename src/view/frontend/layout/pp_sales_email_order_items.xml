@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd"
+      label="Modern Email Order Items List" design_abstraction="custom">
+    <update handle="sales_email_order_renderers"/>
+    <update handle="sales_email_item_price"/>
+    <body>
+        <block class="Magento\Sales\Block\Order\Email\Items" name="items"
+               template="PixelPerfect_SalesEmail::email/order/items.phtml" cacheable="false">
+            <arguments>
+                <argument name="invitation_view_model" xsi:type="object">PixelPerfect\SalesEmail\ViewModel\Invitation</argument>
+                <argument name="gift_view_model" xsi:type="object">PixelPerfect\SalesEmail\ViewModel\EmailGiftMessage</argument>
+            </arguments>
+            <block class="Magento\Framework\View\Element\RendererList" name="sales.email.order.renderers" as="renderer.list"/>
+            <block class="Magento\Sales\Block\Order\Totals" name="order_totals"
+                   template="PixelPerfect_SalesEmail::email/totals.phtml">
+                <arguments>
+                    <argument name="label_properties" xsi:type="string">class="pp-total-label"</argument>
+                    <argument name="value_properties" xsi:type="string">class="pp-total-value"</argument>
+                    <argument name="view_model" xsi:type="object">PixelPerfect\SalesEmail\ViewModel\EmailTotals</argument>
+                </arguments>
+                <block class="Magento\Tax\Block\Sales\Order\Tax" name="tax" template="Magento_Tax::order/tax.phtml">
+                    <action method="setIsPlaneMode">
+                        <argument name="value" xsi:type="string">1</argument>
+                    </action>
+                </block>
+            </block>
+        </block>
+        <block class="Magento\Framework\View\Element\Template" name="additional.product.info"
+               template="Magento_Theme::template.phtml"/>
+        <referenceBlock name="sales.email.order.renderers.default"
+                        template="PixelPerfect_SalesEmail::email/items/order/default.phtml">
+            <arguments>
+                <argument name="view_model" xsi:type="object">PixelPerfect\SalesEmail\ViewModel\EmailItem</argument>
+                <argument name="gift_view_model" xsi:type="object">PixelPerfect\SalesEmail\ViewModel\EmailGiftMessage</argument>
+            </arguments>
+        </referenceBlock>
+        <referenceBlock name="sales.email.order.renderers.grouped"
+                        template="PixelPerfect_SalesEmail::email/items/order/default.phtml">
+            <arguments>
+                <argument name="view_model" xsi:type="object">PixelPerfect\SalesEmail\ViewModel\EmailItem</argument>
+                <argument name="gift_view_model" xsi:type="object">PixelPerfect\SalesEmail\ViewModel\EmailGiftMessage</argument>
+            </arguments>
+        </referenceBlock>
+        <referenceBlock name="sales.email.order.renderers.bundle"
+                        template="PixelPerfect_SalesEmail::email/items/order/bundle.phtml">
+            <arguments>
+                <argument name="view_model" xsi:type="object">PixelPerfect\SalesEmail\ViewModel\EmailItem</argument>
+                <argument name="gift_view_model" xsi:type="object">PixelPerfect\SalesEmail\ViewModel\EmailGiftMessage</argument>
+            </arguments>
+        </referenceBlock>
+        <referenceBlock name="sales.email.order.renderers.downloadable"
+                        template="PixelPerfect_SalesEmail::email/items/order/downloadable.phtml">
+            <arguments>
+                <argument name="view_model" xsi:type="object">PixelPerfect\SalesEmail\ViewModel\EmailItem</argument>
+                <argument name="gift_view_model" xsi:type="object">PixelPerfect\SalesEmail\ViewModel\EmailGiftMessage</argument>
+            </arguments>
+        </referenceBlock>
+    </body>
+</page>
