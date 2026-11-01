@@ -212,4 +212,263 @@ class EmailHtmlSanitizerTest extends TestCase
 
         $this->assertSame('', $result->getHtml());
     }
+
+    public function testHttpLinksAreKept(): void
+    {
+        $result = $this->sanitizer->sanitize('<a href="http://example.com/a">x</a>');
+
+        $this->assertSame('<a href="http://example.com/a">x</a>', $result->getHtml());
+        $this->assertSame([], $result->getRemoved());
+    }
+
+    public function testRelativeUrlsContainingColonsAreKept(): void
+    {
+        $html = '<a href="/page?ref=x:y">a</a><a href="#a:b">b</a><img src="img/a:b.png" alt="c">';
+
+        $result = $this->sanitizer->sanitize($html);
+
+        $this->assertSame([], $result->getRemoved());
+        $this->assertSame($html, $result->getHtml());
+    }
+
+    /**
+     * @dataProvider encodedSchemeProvider
+     */
+    public function testEntityEncodedSchemesAreStripped(string $href): void
+    {
+        $result = $this->sanitizer->sanitize('<a href="' . $href . '">x</a>');
+
+        $this->assertSame('<a>x</a>', $result->getHtml());
+        $this->assertSame(['href (unsafe URL)'], $result->getRemoved());
+    }
+
+    /**
+     * Double-encoded in the markup, so the attribute value still holds an entity after parsing.
+     *
+     * @return array<string, array{string}>
+     */
+    public static function encodedSchemeProvider(): array
+    {
+        return [
+            'named colon' => ['javascript&amp;colon;alert(1)'],
+            'named tab' => ['java&amp;Tab;script:alert(1)'],
+            'named newline' => ['java&amp;NewLine;script:alert(1)'],
+            'numeric upper-case letter' => ['&amp;#74;AVASCRIPT:alert(1)'],
+            'hex letter' => ['&amp;#x6A;avascript:alert(1)'],
+        ];
+    }
+
+    public function testUppercaseStyleKeywordsAreRejected(): void
+    {
+        foreach (['width:EXPRESSION(alert(1))', 'BEHAVIOR:url(x.htc)', 'background:url(x);@IMPORT x'] as $style) {
+            $result = $this->sanitizer->sanitize('<p style="' . $style . '">x</p>');
+
+            $this->assertSame('<p>x</p>', $result->getHtml(), $style);
+            $this->assertSame(['style (unsafe value)'], $result->getRemoved(), $style);
+        }
+    }
+
+    /**
+     * @dataProvider unsafeStyleUrlProvider
+     */
+    public function testStyleUrlsWithOtherSchemesAreRejected(string $style): void
+    {
+        $result = $this->sanitizer->sanitize('<p style="' . $style . '">x</p>');
+
+        $this->assertSame('<p>x</p>', $result->getHtml());
+        $this->assertSame(['style (unsafe value)'], $result->getRemoved());
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function unsafeStyleUrlProvider(): array
+    {
+        return [
+            'https hidden behind another scheme' => ['background:url(data:text/html,http://example.com)'],
+            'upper-case scheme' => ['background:url(DATA:image/png;base64,AAAA)'],
+            'ftp' => ['background:url(ftp://example.com/a.png)'],
+        ];
+    }
+
+    public function testStyleUrlsOverHttpAndRelativeAreKept(): void
+    {
+        $style = 'background:url(HTTPS://example.com/a.png);list-style:url(http://example.com/b.png);'
+            . 'background-image:url(/img/a:b.png);border-image:url( \'img/c.png\' )';
+
+        $result = $this->sanitizer->sanitize('<p style="' . $style . '">x</p>');
+
+        $this->assertSame([], $result->getRemoved());
+        $this->assertStringContainsString('style=', $result->getHtml());
+    }
+
+    public function testStyleWithoutUrlIsKept(): void
+    {
+        $result = $this->sanitizer->sanitize('<p style="color:#111;margin:0">x</p>');
+
+        $this->assertSame('<p style="color:#111;margin:0">x</p>', $result->getHtml());
+    }
+
+    public function testRemovalContinuesAfterCommentsTextAndDroppedTags(): void
+    {
+        $result = $this->sanitizer->sanitize(
+            '<!-- c --><script>1</script>text<style>2</style><section>s</section><b onclick="x">y</b>'
+        );
+
+        $this->assertSame('texts<b>y</b>', $result->getHtml());
+        $this->assertSame(
+            ['script', 'style', 'section', 'onclick attribute'],
+            $result->getRemoved()
+        );
+    }
+
+    public function testNestedContentIsCleanedRecursively(): void
+    {
+        $result = $this->sanitizer->sanitize(
+            '<div><table><tr><td><script>1</script><span><article onclick="x">deep</article></span></td></tr></table></div>'
+        );
+
+        $this->assertSame('<div><table><tr><td><span>deep</span></td></tr></table></div>', $result->getHtml());
+        $this->assertSame(['script', 'article'], $result->getRemoved());
+    }
+
+    public function testMarkupIsCaseInsensitive(): void
+    {
+        $result = $this->sanitizer->sanitize('<SCRIPT>1</SCRIPT><P ONCLICK="x" STYLE="color:red">a</P><A HREF="JAVASCRIPT:1">b</A>');
+
+        $this->assertSame('<p style="color:red">a</p><a>b</a>', $result->getHtml());
+        $this->assertSame(['script', 'onclick attribute', 'href (unsafe URL)'], $result->getRemoved());
+    }
+
+    public function testRemovedLabelsAreUnwrappedUnsafeUrlAndUnsafeValueDistinct(): void
+    {
+        $result = $this->sanitizer->sanitize(
+            '<p style="behavior:url(x)" onclick="a()"><a href="javascript:1">x</a><font>f</font></p>'
+        );
+
+        $this->assertSame(['href (unsafe URL)', 'font', 'style (unsafe value)', 'onclick attribute'], $result->getRemoved());
+    }
+
+    public function testSurroundingWhitespaceIsTrimmed(): void
+    {
+        $result = $this->sanitizer->sanitize("\n  <p>a</p>  \n");
+
+        $this->assertSame('<p>a</p>', $result->getHtml());
+    }
+
+    public function testPlainTextAndInlineMarkupSurvive(): void
+    {
+        $result = $this->sanitizer->sanitize('Hello <b>big</b> world');
+
+        $this->assertSame('Hello <b>big</b> world', $result->getHtml());
+        $this->assertSame([], $result->getRemoved());
+    }
+
+    public function testBlankInputDoesNotParseAndCreatesAnEmptyResultOnce(): void
+    {
+        $calls = [];
+        $factory = $this->createMock(SanitizedHtmlInterfaceFactory::class);
+        $factory->method('create')->willReturnCallback(
+            static function (array $data = []) use (&$calls) {
+                $calls[] = $data;
+
+                return (new SanitizedHtmlInterfaceFactory())->create();
+            }
+        );
+
+        (new EmailHtmlSanitizer($factory, $this->createMock(LoggerInterface::class)))->sanitize(" \t\n");
+
+        $this->assertSame([[]], $calls, 'one plain empty result, nothing parsed');
+    }
+
+    public function testRemovedListIsDeduplicatedAndReindexed(): void
+    {
+        $factory = $this->createMock(SanitizedHtmlInterfaceFactory::class);
+        $factory->expects($this->once())->method('create')
+            ->with(['html' => '<p>a</p>', 'removed' => ['script', 'style']])
+            ->willReturn((new SanitizedHtmlInterfaceFactory())->create());
+
+        (new EmailHtmlSanitizer($factory, $this->createMock(LoggerInterface::class)))
+            ->sanitize('<script>1</script><script>2</script><p>a</p><style>3</style>');
+    }
+
+    /**
+     * @dataProvider controlCharacterSchemeProvider
+     */
+    public function testControlCharactersInsideASchemeAreIgnored(string $href): void
+    {
+        $result = $this->sanitizer->sanitize('<a href="' . $href . '">x</a>');
+
+        $this->assertSame('<a>x</a>', $result->getHtml());
+        $this->assertSame(['href (unsafe URL)'], $result->getRemoved());
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function controlCharacterSchemeProvider(): array
+    {
+        return [
+            'space' => ['java script:alert(1)'],
+            'tab' => ["java\tscript:alert(1)"],
+            'carriage return' => ["java\rscript:alert(1)"],
+            'unit separator' => ["java\x1fscript:alert(1)"],
+            'start of heading' => ["java\x01script:alert(1)"],
+            'delete' => ["java\x7fscript:alert(1)"],
+            'leading control characters' => ["\x01\x02 javascript:alert(1)"],
+        ];
+    }
+
+    public function testCharactersOutsideTheControlRangeAreNotIgnored(): void
+    {
+        // "!" (0x21) and "~" (0x7e) sit right next to the stripped ranges; they do not form a scheme
+        $result = $this->sanitizer->sanitize('<a href="java!script:x">a</a><a href="java~script:x">b</a>');
+
+        $this->assertSame([], $result->getRemoved());
+    }
+
+    public function testResultIsBuiltWithHtmlAndRemoved(): void
+    {
+        $factory = $this->createMock(SanitizedHtmlInterfaceFactory::class);
+        $factory->expects($this->once())->method('create')
+            ->with(['html' => '<p>a</p>', 'removed' => ['script']])
+            ->willReturn((new SanitizedHtmlInterfaceFactory())->create());
+
+        (new EmailHtmlSanitizer($factory, $this->createMock(LoggerInterface::class)))
+            ->sanitize('<p>a</p><script>1</script>');
+    }
+
+    public function testFailureIsLoggedWithMessageAndException(): void
+    {
+        $exception = new \RuntimeException('boom');
+        $factory = $this->createMock(SanitizedHtmlInterfaceFactory::class);
+        $factory->expects($this->exactly(2))->method('create')->willReturnCallback(
+            static function (array $data = []) use ($exception) {
+                if ($data !== []) {
+                    throw $exception;
+                }
+
+                return (new SanitizedHtmlInterfaceFactory())->create();
+            }
+        );
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('error')
+            ->with('Invitation block sanitizing failed: boom', ['exception' => $exception]);
+
+        (new EmailHtmlSanitizer($factory, $logger))->sanitize('<p>x</p>');
+    }
+
+    public function testLibxmlStateIsRestored(): void
+    {
+        foreach ([false, true] as $before) {
+            libxml_use_internal_errors($before);
+            libxml_clear_errors();
+
+            $this->sanitizer->sanitize('<p>unclosed <foo>bar</p></p><baz');
+
+            $this->assertSame($before, libxml_use_internal_errors(), 'flag restored');
+            $this->assertSame([], libxml_get_errors(), 'errors cleared');
+        }
+        libxml_use_internal_errors(false);
+    }
 }

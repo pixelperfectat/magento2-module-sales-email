@@ -13,7 +13,10 @@ use Psr\Log\LoggerInterface;
 
 class EmailHtmlSanitizer implements EmailHtmlSanitizerInterface
 {
-    private const ROOT_ID = 'pp-sales-email-root';
+    /**
+     * Control characters and space (0x00-0x20, 0x7f): browsers ignore them inside a URL scheme
+     */
+    private const IGNORED_IN_URLS = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f\x20\x7f";
 
     /**
      * @param SanitizedHtmlInterfaceFactory $resultFactory
@@ -72,27 +75,17 @@ class EmailHtmlSanitizer implements EmailHtmlSanitizerInterface
     {
         $document = new DOMDocument();
         $previous = libxml_use_internal_errors(true);
-        try {
-            $document->loadHTML(
-                '<?xml encoding="utf-8"?><div id="' . self::ROOT_ID . '">' . $html . '</div>',
-                LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
-            );
-        } finally {
-            libxml_clear_errors();
-            libxml_use_internal_errors($previous);
-        }
+        $document->loadHTML(
+            sprintf('<?xml encoding="utf-8"?><div>%s</div>', $html),
+            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+        );
+        libxml_clear_errors();
+        libxml_use_internal_errors($previous);
         $document->encoding = 'UTF-8';
 
-        $root = null;
-        foreach ($document->childNodes as $child) {
-            if ($child instanceof DOMElement) {
-                $root = $child;
-                break;
-            }
-        }
-        if ($root === null) {
-            return $this->resultFactory->create();
-        }
+        // The wrapper div is always the document element; the parser never fails on a non-empty string.
+        /** @var DOMElement $root */
+        $root = $document->documentElement;
 
         // A stray closing tag in the input can close the root early; keep everything that follows.
         foreach (iterator_to_array($document->childNodes) as $sibling) {
@@ -103,20 +96,21 @@ class EmailHtmlSanitizer implements EmailHtmlSanitizerInterface
 
         $removed = [];
         $this->cleanChildren($root, $removed);
+        $removed = array_values(array_unique($removed));
 
         $output = '';
         foreach ($root->childNodes as $child) {
             $output .= $document->saveHTML($child);
         }
 
-        return $this->resultFactory->create(['html' => trim($output), 'removed' => array_keys($removed)]);
+        return $this->resultFactory->create(['html' => trim($output), 'removed' => $removed]);
     }
 
     /**
      * Clean the children of a node in place
      *
      * @param DOMNode $parent
-     * @param array<string, true> $removed
+     * @param string[] $removed
      * @return void
      */
     private function cleanChildren(DOMNode $parent, array &$removed): void
@@ -130,9 +124,9 @@ class EmailHtmlSanitizer implements EmailHtmlSanitizerInterface
                 continue;
             }
 
-            $name = strtolower($child->nodeName);
+            $name = $child->nodeName; // the HTML parser lower-cases tag names
             if (in_array($name, $this->droppedTags, true)) {
-                $removed[$this->label('%1', $name)] = true;
+                $removed[] = $this->label('%1', $name);
                 $parent->removeChild($child);
                 continue;
             }
@@ -140,7 +134,7 @@ class EmailHtmlSanitizer implements EmailHtmlSanitizerInterface
             $this->cleanChildren($child, $removed);
 
             if (!in_array($name, $this->allowedTags, true)) {
-                $removed[$this->label('%1', $name)] = true;
+                $removed[] = $this->label('%1', $name);
                 while ($child->firstChild !== null) {
                     $parent->insertBefore($child->firstChild, $child);
                 }
@@ -156,13 +150,13 @@ class EmailHtmlSanitizer implements EmailHtmlSanitizerInterface
      * Drop attributes outside the allow-list and unsafe URL or style values
      *
      * @param DOMElement $element
-     * @param array<string, true> $removed
+     * @param string[] $removed
      * @return void
      */
     private function cleanAttributes(DOMElement $element, array &$removed): void
     {
         foreach (iterator_to_array($element->attributes) as $attribute) {
-            $name = strtolower($attribute->nodeName);
+            $name = $attribute->nodeName; // the HTML parser lower-cases attribute names
             if (!in_array($name, $this->allowedAttributes, true) || !$this->isSafeValue($name, $attribute->value)) {
                 $pattern = '%1 attribute';
                 if (in_array($name, $this->urlAttributes, true) && in_array($name, $this->allowedAttributes, true)) {
@@ -170,7 +164,7 @@ class EmailHtmlSanitizer implements EmailHtmlSanitizerInterface
                 } elseif (in_array($name, $this->allowedAttributes, true)) {
                     $pattern = '%1 (unsafe value)';
                 }
-                $removed[$this->label($pattern, $name)] = true;
+                $removed[] = $this->label($pattern, $name);
                 $element->removeAttribute($attribute->nodeName);
             }
         }
@@ -186,14 +180,14 @@ class EmailHtmlSanitizer implements EmailHtmlSanitizerInterface
     private function isSafeValue(string $name, string $value): bool
     {
         if (in_array($name, $this->urlAttributes, true)) {
-            $compact = strtolower((string)preg_replace('/[\x00-\x20\x7f]+/', '', $value));
-            $compact = html_entity_decode($compact, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-            $compact = strtolower((string)preg_replace('/[\x00-\x20\x7f]+/', '', $compact));
-            if (preg_match('/^([a-z][a-z0-9+.\-]*):/', $compact, $match) === 1) {
-                return in_array($match[1], $this->allowedSchemes, true);
-            }
+            $compact = strtolower(str_replace(
+                str_split(self::IGNORED_IN_URLS),
+                '',
+                html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8')
+            ));
 
-            return true;
+            return preg_match('/^([a-z][a-z0-9+.\-]*):/', $compact, $match) !== 1
+                || in_array($match[1], $this->allowedSchemes, true);
         }
         if ($name === 'style') {
             return $this->isSafeStyle($value);
@@ -216,12 +210,11 @@ class EmailHtmlSanitizer implements EmailHtmlSanitizerInterface
         if (preg_match('/expression|behavior|javascript|vbscript|-moz-binding|@import/i', $style) === 1) {
             return false;
         }
-        if (preg_match_all('/url\s*\(([^)]*)\)/i', $style, $matches) > 0) {
-            foreach ($matches[1] as $url) {
-                $url = trim($url, " \t\n\r\"'");
-                if (preg_match('/^https?:\/\//i', $url) !== 1 && preg_match('/^[a-z][a-z0-9+.\-]*:/i', $url) === 1) {
-                    return false;
-                }
+        preg_match_all('/url\s*\(([^)]*)\)/i', $style, $matches);
+        foreach ($matches[1] as $url) {
+            $url = trim($url, " \t\n\r\"'");
+            if (preg_match('/^https?:\/\//i', $url) !== 1 && preg_match('/^[a-z][a-z0-9+.\-]*:/i', $url) === 1) {
+                return false;
             }
         }
 
