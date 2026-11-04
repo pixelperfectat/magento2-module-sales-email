@@ -48,6 +48,10 @@ $open = $giftHtml !== '' ? ' pp-item-open' : '';
                 <?php endforeach; ?>
             </p>
         <?php endif; ?>
+        <?php $addInfoBlock = $block->getProductAdditionalInformationBlock(); ?>
+        <?php if ($addInfoBlock): ?>
+            <?= /* @noEscape */ $addInfoBlock->setItem($item)->toHtml() ?>
+        <?php endif; ?>
     </td>
     <td class="pp-item-price<?= $open ?>" valign="middle" align="right">
         <?= /* @noEscape */ $block->getItemPrice($item) ?>

@@ -42,6 +42,10 @@ $options = $block->getItemOptions();
                 <?php endforeach; ?>
             </p>
         <?php endif; ?>
+        <?php $addInfoBlock = $block->getProductAdditionalInformationBlock(); ?>
+        <?php if ($addInfoBlock): ?>
+            <?= /* @noEscape */ $addInfoBlock->setItem($item->getOrderItem())->toHtml() ?>
+        <?php endif; ?>
     </td>
     <td class="pp-item-qty" valign="middle" align="right">
         <?= $escaper->escapeHtml(__('Qty: %1', $viewModel->formatQty((float)$item->getQty(), $storeId))) ?>
