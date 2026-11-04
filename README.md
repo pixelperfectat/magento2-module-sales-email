@@ -19,7 +19,11 @@ Table-based markup, English and German copy.
 - Extra item lines from other modules: the default item rows (order confirmation and shipment) render core's
   `additional.product.info` block below the options, as the core item templates do. A module adds its line (for
   example a base price) by adding a child block to `additional.product.info` in the matching renderer layout handle.
-  The block receives the order item. Bundle and downloadable rows do not render it, like in core.
+  The block receives the order item. Bundle and downloadable rows do not render it, like in core. The handles that
+  work for these extra lines are `sales_email_order_renderers` and `sales_email_order_shipment_renderers`; core's
+  `sales_email_order_items` and `sales_email_order_shipment_items` handles are not loaded by this module. The block
+  output is wrapped in a `pp-item-addinfo` element, and the paragraphs inside it get the same small grey style as the
+  quantity line.
 - Invoice and credit memo emails are planned, not part of v1.
 
 ## Requirements
