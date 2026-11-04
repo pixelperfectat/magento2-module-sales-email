@@ -148,6 +148,13 @@ img {
     color: #6b6b6b;
 }
 
+.pp-item-addinfo p {
+    margin: 2px 0 0;
+    font-size: 13px;
+    line-height: 19px;
+    color: #6b6b6b;
+}
+
 .pp-item-options {
     margin: 4px 0 0;
     font-size: 13px;

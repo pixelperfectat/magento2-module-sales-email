@@ -44,7 +44,7 @@ $options = $block->getItemOptions();
         <?php endif; ?>
         <?php $addInfoBlock = $block->getProductAdditionalInformationBlock(); ?>
         <?php if ($addInfoBlock): ?>
-            <?= /* @noEscape */ $addInfoBlock->setItem($item->getOrderItem())->toHtml() ?>
+            <div class="pp-item-addinfo"><?= /* @noEscape */ $addInfoBlock->setItem($item->getOrderItem())->toHtml() ?></div>
         <?php endif; ?>
     </td>
     <td class="pp-item-qty" valign="middle" align="right">

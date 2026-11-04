@@ -116,6 +116,10 @@ class OrderItemTemplateTest extends TestCase
 
         $this->assertStringContainsString('<p class="pp-base-price">9,99 EUR / 1 kg</p>', $html);
         $this->assertSame($item, $infoBlock->received);
+        $this->assertStringContainsString(
+            '<div class="pp-item-addinfo"><p class="pp-base-price">9,99 EUR / 1 kg</p></div>',
+            preg_replace('/>\s+</', '><', $html)
+        );
         $this->assertLessThan(
             strpos($html, 'pp-item-price'),
             strpos($html, 'pp-base-price'),
