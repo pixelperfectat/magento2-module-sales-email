@@ -114,4 +114,47 @@ class ConfigTest extends TestCase
 
         $this->assertNull($this->config->getInvitationBlockId());
     }
+
+    /**
+     * @return array<string, array{0: string, 1: string}>
+     */
+    public function statusBlocks(): array
+    {
+        return [
+            'pending' => [ConfigInterface::XML_PATH_PENDING_CMS_BLOCK, 'getPendingBlockId'],
+            'confirmed' => [ConfigInterface::XML_PATH_CONFIRMED_CMS_BLOCK, 'getConfirmedBlockId'],
+        ];
+    }
+
+    /**
+     * @dataProvider statusBlocks
+     */
+    public function testStatusBlockIdentifierIsReadTrimmedForTheStore(string $path, string $getter): void
+    {
+        $this->scopeConfig->method('getValue')
+            ->with($path, ScopeInterface::SCOPE_STORE, 2)
+            ->willReturn(' thanks_block ');
+
+        $this->assertSame('thanks_block', $this->config->$getter(2));
+    }
+
+    /**
+     * @dataProvider statusBlocks
+     */
+    public function testEmptyStatusBlockIsNull(string $path, string $getter): void
+    {
+        $this->scopeConfig->method('getValue')->with($path)->willReturn('');
+
+        $this->assertNull($this->config->$getter(2));
+    }
+
+    public function testHideForUnsubscribedReadsStoreScope(): void
+    {
+        $this->scopeConfig->expects($this->once())
+            ->method('isSetFlag')
+            ->with(ConfigInterface::XML_PATH_HIDE_UNSUBSCRIBED, ScopeInterface::SCOPE_STORE, 4)
+            ->willReturn(true);
+
+        $this->assertTrue($this->config->isHiddenForUnsubscribed(4));
+    }
 }

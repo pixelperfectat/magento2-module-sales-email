@@ -21,7 +21,7 @@ $order = $block->getOrder();
     <?php
     /** @var Invitation $invitation */
     $invitation = $block->getData('invitation_view_model');
-    $invitationHtml = $invitation->getHtml('order', (int)$order->getStoreId());
+    $invitationHtml = $invitation->getHtml('order', (int)$order->getStoreId(), (string)$order->getCustomerEmail());
     /** @var EmailGiftMessage $giftViewModel */
     $giftViewModel = $block->getData('gift_view_model');
     $orderGiftHtml = $giftViewModel->getOrderHtml($order);

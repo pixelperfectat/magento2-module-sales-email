@@ -53,6 +53,31 @@ class BlockRepositoryPluginTest extends TestCase
         $this->assertSame($block, $this->plugin->afterSave($this->createMock(BlockRepositoryInterface::class), $block, $block));
     }
 
+    /**
+     * @return array<string, array{0: string}>
+     */
+    public function statusBlockGetters(): array
+    {
+        return ['pending block' => ['getPendingBlockId'], 'confirmed block' => ['getConfirmedBlockId']];
+    }
+
+    /**
+     * @dataProvider statusBlockGetters
+     */
+    public function testWarnsForABlockConfiguredForSubscribers(string $getter): void
+    {
+        $this->stores([0 => null, 1 => 'invite']);
+        $this->config->method($getter)->willReturnCallback(
+            static fn (?int $storeId): ?string => $storeId === 1 ? 'thanks' : null
+        );
+        $block = $this->block('thanks', '<script>1</script>');
+
+        $this->messages->expects($this->once())->method('addWarningMessage')
+            ->with($this->stringContains('"thanks"'));
+
+        $this->plugin->afterSave($this->createMock(BlockRepositoryInterface::class), $block, $block);
+    }
+
     public function testNoWarningForOtherBlocks(): void
     {
         $this->stores([0 => null, 1 => 'invite']);
@@ -87,7 +112,7 @@ class BlockRepositoryPluginTest extends TestCase
         $stores = [];
         foreach (array_keys($map) as $id) {
             $store = $this->createMock(StoreInterface::class);
-            $store->method('getId')->willReturn($id);
+            $store->method('getId')->willReturn((string)$id);
             $stores[] = $store;
         }
         $this->storeManager->method('getStores')->with(true)->willReturn($stores);

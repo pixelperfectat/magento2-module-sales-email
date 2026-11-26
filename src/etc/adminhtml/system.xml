@@ -32,6 +32,24 @@
                     <source_model>PixelPerfect\SalesEmail\Model\Config\Source\EmailType</source_model>
                     <comment>The emails that include the invitation block.</comment>
                 </field>
+                <field id="pending_cms_block" translate="label comment" type="select" sortOrder="30"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>CMS Block for Pending Subscribers</label>
+                    <source_model>PixelPerfect\SalesEmail\Model\Config\Source\CmsBlock</source_model>
+                    <comment>With the Newsletter Sign-up module installed: shown instead of the invitation when the recipient signed up but has not clicked the confirmation link yet. Leave empty to show nothing.</comment>
+                </field>
+                <field id="confirmed_cms_block" translate="label comment" type="select" sortOrder="40"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>CMS Block for Subscribers</label>
+                    <source_model>PixelPerfect\SalesEmail\Model\Config\Source\CmsBlock</source_model>
+                    <comment>With the Newsletter Sign-up module installed: shown instead of the invitation when the recipient is subscribed. Leave empty to show nothing.</comment>
+                </field>
+                <field id="hide_unsubscribed" translate="label comment" type="select" sortOrder="50"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Hide for Unsubscribed</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>With the Newsletter Sign-up module installed: no invitation for recipients who unsubscribed from the newsletter.</comment>
+                </field>
             </group>
         </section>
     </system>

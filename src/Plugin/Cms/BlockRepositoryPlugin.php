@@ -64,7 +64,7 @@ class BlockRepositoryPlugin
     }
 
     /**
-     * Whether any scope (including the default one) configures the identifier as invitation block
+     * Whether any scope (including the default one) uses the identifier as invitation or subscriber block
      *
      * @param string $identifier
      * @return bool
@@ -72,7 +72,13 @@ class BlockRepositoryPlugin
     private function isInvitationBlock(string $identifier): bool
     {
         foreach ($this->storeManager->getStores(true) as $store) {
-            if ($this->config->getInvitationBlockId((int)$store->getId()) === $identifier) {
+            $storeId = (int)$store->getId();
+            $configured = [
+                $this->config->getInvitationBlockId($storeId),
+                $this->config->getPendingBlockId($storeId),
+                $this->config->getConfirmedBlockId($storeId),
+            ];
+            if (in_array($identifier, $configured, true)) {
                 return true;
             }
         }

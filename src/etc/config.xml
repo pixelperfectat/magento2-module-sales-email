@@ -9,6 +9,9 @@
             <invitation>
                 <cms_block></cms_block>
                 <enabled_for>order,shipment</enabled_for>
+                <pending_cms_block></pending_cms_block>
+                <confirmed_cms_block></confirmed_cms_block>
+                <hide_unsubscribed>0</hide_unsubscribed>
             </invitation>
         </pp_sales_email>
         <sales_email>

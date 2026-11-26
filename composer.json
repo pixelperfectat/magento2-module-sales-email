@@ -21,7 +21,8 @@
     "suggest": {
         "magento/module-bundle": "Bundle item rows in the emails",
         "magento/module-downloadable": "Downloadable item rows in the emails",
-        "pixelperfectat/magento2-module-discount-lines": "Itemised discount rows in the totals of the emails"
+        "pixelperfectat/magento2-module-discount-lines": "Itemised discount rows in the totals of the emails",
+        "pixelperfectat/magento2-module-newsletter-signup": "Invitation block by newsletter status: nothing or a thank-you for subscribers, and the sign-up source of the email"
     },
     "require-dev": {
         "infection/infection": "^0.35",

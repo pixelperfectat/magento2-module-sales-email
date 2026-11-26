@@ -21,7 +21,7 @@ $order = $block->getOrder();
     <?php
     /** @var Invitation $invitation */
     $invitation = $block->getData('invitation_view_model');
-    $invitationHtml = $invitation->getHtml('shipment', (int)$order->getStoreId());
+    $invitationHtml = $invitation->getHtml('shipment', (int)$order->getStoreId(), (string)$order->getCustomerEmail());
     ?>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
