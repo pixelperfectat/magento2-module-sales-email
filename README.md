@@ -44,6 +44,9 @@ Stores > Configuration > Sales > Modern Sales Emails. All settings exist at defa
 | `pp_sales_email/general/enabled` | `1` | Use the modern templates. `0` = this store view keeps using the core templates. |
 | `pp_sales_email/invitation/cms_block` | empty | Identifier of the CMS block shown as invitation. Empty = no invitation. |
 | `pp_sales_email/invitation/enabled_for` | `order,shipment` | Emails that include the invitation block. |
+| `pp_sales_email/invitation/pending_cms_block` | empty | Block for recipients whose sign-up waits for the confirmation click. Empty = nothing. Needs the newsletter sign-up module. |
+| `pp_sales_email/invitation/confirmed_cms_block` | empty | Block for subscribed recipients. Empty = nothing. Needs the newsletter sign-up module. |
+| `pp_sales_email/invitation/hide_unsubscribed` | `0` | `1` = no invitation for recipients who unsubscribed. Needs the newsletter sign-up module. |
 
 The module registers its templates as the default for `sales_email/order/{template,guest_template}` and
 `sales_email/shipment/{template,guest_template}`. With `enabled = 0` for a store view, that store view gets the core
@@ -107,9 +110,34 @@ The warning when saving the CMS block (Content > Blocks) checks the **raw conten
 (`{{widget}}`, `{{block}}`, `{{store url=''}}`) are expanded at render time and their output is sanitised then, so
 unsafe markup produced by a directive is removed silently.
 
-The default button links to the store home with a `#newsletter` anchor (`{{store url=''}}#newsletter`) because core
-Magento has no newsletter sign-up page. Point the link at your sign-up page, or make sure your theme has an element
-with that anchor.
+The default button links to the store home with a `#newsletter` anchor
+(`{{store url='' _query_nl_source=$nl_source}}#newsletter`) because core Magento has no newsletter sign-up page.
+Point the link at your sign-up page, or make sure your theme has an element with that anchor. An unedited default
+block from an earlier version gets this link on `setup:upgrade`; an edited one is left alone.
+
+`$nl_source` is `order_email` in the order email and `shipment_email` in the shipment email. With the
+[Newsletter Sign-up](https://github.com/pixelperfectat/magento2-module-newsletter-signup) module installed, a sign-up
+after that click is recorded with this source. **In your own block, add `_query_nl_source=$nl_source` to the
+`{{store url=...}}` of the sign-up link** to get the same. Without that module the parameter does nothing. The codes
+per email type are the `sourceCodes` argument of `PixelPerfect\SalesEmail\ViewModel\Invitation` in `di.xml`.
+
+## Invitation by newsletter status
+
+With [Newsletter Sign-up](https://github.com/pixelperfectat/magento2-module-newsletter-signup)
+(`pixelperfectat/magento2-module-newsletter-signup`) installed, the block depends on whether the order's email
+address is subscribed on the website of the order's store:
+
+| Status | Shown |
+|---|---|
+| Not subscribed | The invitation block |
+| Pending (signed up, confirmation link not clicked yet) | "CMS Block for Pending Subscribers", nothing when empty (default) |
+| Confirmed | "CMS Block for Subscribers", nothing when empty (default) |
+| Unsubscribed | The invitation block, nothing when "Hide for Unsubscribed" is on |
+
+The pending and subscriber blocks are sanitised like the invitation and get the same save warning. When the status
+cannot be read, the error is logged and the invitation shows. Without the module the invitation shows as before,
+for everyone. The module is only suggested: this package never references its classes, so `setup:di:compile` works
+with or without it.
 
 ## Discount lines
 
