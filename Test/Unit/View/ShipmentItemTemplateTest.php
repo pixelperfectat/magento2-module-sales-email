@@ -94,12 +94,74 @@ class ShipmentItemTemplateTest extends TestCase
             {
                 return [];
             }
+
+            public function getProductAdditionalInformationBlock(): ?object
+            {
+                return null;
+            }
         };
 
         $html = $this->render('items/shipment/default.phtml', $block);
 
         $this->assertStringContainsString('Qty: 1', $html);
         $this->assertStringNotContainsString('Qty: 3', $html);
+    }
+
+    public function testDefaultRowRendersAdditionalProductInfoForTheOrderItem(): void
+    {
+        $item = $this->shipmentItem('Herbal Tea', 1.0);
+        $infoBlock = new class {
+            public ?object $received = null;
+
+            public function setItem(object $item): static
+            {
+                $this->received = $item;
+
+                return $this;
+            }
+
+            public function toHtml(): string
+            {
+                return '<p class="pp-base-price">9,99 EUR / 1 kg</p>';
+            }
+        };
+        $block = new class ($item, $this->viewModel(), $infoBlock) {
+            public function __construct(
+                private readonly DataObject $item,
+                private readonly EmailItem $vm,
+                private readonly object $infoBlock
+            ) {
+            }
+
+            public function getItem(): DataObject
+            {
+                return $this->item;
+            }
+
+            public function getData(string $key): mixed
+            {
+                return $this->vm;
+            }
+
+            public function getItemOptions(): array
+            {
+                return [];
+            }
+
+            public function getProductAdditionalInformationBlock(): object
+            {
+                return $this->infoBlock;
+            }
+        };
+
+        $html = $this->render('items/shipment/default.phtml', $block);
+
+        $this->assertStringContainsString('<p class="pp-base-price">9,99 EUR / 1 kg</p>', $html);
+        $this->assertSame($item->getData('order_item'), $infoBlock->received);
+        $this->assertStringContainsString(
+            '<div class="pp-item-addinfo"><p class="pp-base-price">9,99 EUR / 1 kg</p></div>',
+            preg_replace('/>\s+</', '><', $html)
+        );
     }
 
     public function testItemNameIsEscaped(): void
@@ -122,6 +184,11 @@ class ShipmentItemTemplateTest extends TestCase
             public function getItemOptions(): array
             {
                 return [];
+            }
+
+            public function getProductAdditionalInformationBlock(): ?object
+            {
+                return null;
             }
         };
 
