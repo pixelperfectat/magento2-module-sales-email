@@ -5,6 +5,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-26
+
 ### Added
 
 - With `pixelperfectat/magento2-module-newsletter-signup` installed, the invitation block depends on the recipient's newsletter status: subscribers and pending sign-ups get nothing by default or a block of their own, and the invitation can be hidden for people who unsubscribed.
