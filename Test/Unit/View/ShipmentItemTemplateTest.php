@@ -217,9 +217,11 @@ class ShipmentItemTemplateTest extends TestCase
     private function itemsBlock(string $invitationHtml): object
     {
         $invitation = $this->createMock(Invitation::class);
-        $invitation->expects($this->once())->method('getHtml')->with('shipment', 1)->willReturn($invitationHtml);
+        $invitation->expects($this->once())->method('getHtml')
+            ->with('shipment', 1, 'jane.doe@example.com')
+            ->willReturn($invitationHtml);
         $shipment = new DataObject(['all_items' => []]);
-        $order = new DataObject(['store_id' => 1]);
+        $order = new DataObject(['store_id' => 1, 'customer_email' => 'jane.doe@example.com']);
 
         return new class ($shipment, $order, $invitation) {
             public function __construct(

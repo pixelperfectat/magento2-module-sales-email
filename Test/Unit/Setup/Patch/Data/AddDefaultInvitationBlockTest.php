@@ -28,11 +28,11 @@ class AddDefaultInvitationBlockTest extends TestCase
     public function testCmsFilteredContentPassesUnchanged(): void
     {
         $filtered = preg_replace(
-            "/\\{\\{store url=''\\}\\}/",
-            'https://example.com/',
+            "/\\{\\{store url='' _query_nl_source=\\\$nl_source\\}\\}/",
+            'https://example.com/?nl_source=order_email',
             AddDefaultInvitationBlock::CONTENT
         );
-        $this->assertStringContainsString('href="https://example.com/#newsletter"', (string)$filtered);
+        $this->assertStringContainsString('href="https://example.com/?nl_source=order_email#newsletter"', (string)$filtered);
 
         $result = $this->sanitizer->sanitize((string)$filtered);
 
